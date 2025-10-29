@@ -3,11 +3,10 @@ use crate::impls::games::entities::{Entity, GameEntity};
 use crate::impls::game::Game;
 use crate::impls::games::thunder_fighter::entity::{Enemy, Player};
 use crate::utils::consts;
-use crossterm::event::{KeyCode, KeyEventKind};
-use crossterm::style::{Color, Print, SetBackgroundColor, Stylize};
+use crossterm::event::KeyCode;
+use crossterm::style::{Print, Stylize};
 use crossterm::terminal::{Clear, ClearType, EnterAlternateScreen, LeaveAlternateScreen};
-use crossterm::{cursor, event, execute, queue, terminal};
-use std::fmt::{Display, Formatter};
+use crossterm::{cursor, execute, terminal};
 use std::io::{Stdout, Write, stdout};
 use std::ops::Deref;
 use std::panic::catch_unwind;
@@ -15,8 +14,8 @@ use std::sync::mpsc::channel;
 use std::sync::{Arc, Mutex};
 use std::thread::sleep;
 use std::time::Duration;
-use std::{result, thread};
-use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
+use std::thread;
+use unicode_width::UnicodeWidthStr;
 use crate::ui::event::poll_input;
 
 pub struct ThunderFighterGame;
@@ -223,13 +222,13 @@ impl Game for ThunderFighterGame {
 
     fn run(&self, width: u16, height: u16, difficulty: u8) -> Result<(), CliError> {
         println!("{}运行中", self.name());
-        let mut game = Arc::new(Mutex::new(ThunderFighterGameState::new(
+        let game = Arc::new(Mutex::new(ThunderFighterGameState::new(
             width, height, difficulty,
         )));
         // 进入全屏 EnterAlternateScreen
         let mut stdout = stdout();
         execute!(stdout,cursor::Hide)?;
-        // terminal::enable_raw_mode()?;
+        terminal::enable_raw_mode()?;
         execute!(stdout, EnterAlternateScreen,Clear(ClearType::All), cursor::MoveTo(0, 0))?;
         let g1 = game.clone();
         {
@@ -283,6 +282,7 @@ impl Game for ThunderFighterGame {
         }
         //恢复终端
         execute!(stdout, LeaveAlternateScreen, cursor::Show)?;
+        terminal::disable_raw_mode()?;
         // println!("游戏结束！最终分数: {}", game_state.score);
         if error.is_some() {
             return Err(error.unwrap());

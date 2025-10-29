@@ -15,14 +15,13 @@ impl std::fmt::Display for CliError {
         match self {
             CliError::NoMatchHandlerError => write!(f, "not handler matches the command!"),
             CliError::HandlerParamMissError => write!(f, "parser param miss error!"),
-            CliError::FileSysError(err) => write!(f,"file sys error:{}", err),
-            CliError::NetRequestError(err) => write!(f,"net request error:{}", err),
-            CliError::UnknownError(err) => write!(f,"unknown error! {}", err),
+            CliError::FileSysError(err) => write!(f, "file sys error:{}", err),
+            CliError::NetRequestError(err) => write!(f, "net request error:{}", err),
+            CliError::UnknownError(err) => write!(f, "unknown error! {}", err),
         }
     }
 }
-impl Error for CliError {
-}
+impl Error for CliError {}
 impl From<Box<dyn Error>> for CliError {
     fn from(e: Box<dyn Error>) -> Self {
         CliError::UnknownError(e.to_string())

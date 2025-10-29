@@ -1,11 +1,10 @@
-use std::fmt::{Display, Formatter};
-use std::string::ToString;
-use std::sync::OnceLock;
-use clap::Parser;
-use crossterm::style::Stylize;
 use crate::error::CliError;
 use crate::impls::games::thunder_fighter::game::ThunderFighterGame;
 use crate::impls::handlers::CommandHandler;
+use clap::Parser;
+use crossterm::style::Stylize;
+use std::fmt::{Display, Formatter};
+use std::sync::OnceLock;
 
 #[derive(Debug, Parser)]
 pub struct GameHandler {
@@ -15,7 +14,7 @@ pub struct GameHandler {
     #[arg(short, long, default_value_t = 80, help = "游戏宽度")]
     width: u16,
 
-    #[arg(short='H',long, default_value_t = 30, help = "游戏高度")]
+    #[arg(short = 'H', long, default_value_t = 30, help = "游戏高度")]
     height: u16,
 
     #[arg(short, long, default_value_t = 1, help = "游戏难度1-3")]
@@ -31,14 +30,17 @@ pub trait Game: Send + Sync {
 }
 impl Display for dyn Game {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "\t游戏名：{} \t 玩法说明：{}", self.name().blue(), self.help().dark_blue())
+        write!(
+            f,
+            "\t游戏名：{} \t 玩法说明：{}",
+            self.name().blue(),
+            self.help().dark_blue()
+        )
     }
 }
 static GAME_REGISTRY: OnceLock<Vec<Box<dyn Game>>> = OnceLock::new();
 fn init_game_list() -> Vec<Box<dyn Game>> {
-    vec![
-        Box::new(ThunderFighterGame{})
-    ]
+    vec![Box::new(ThunderFighterGame {})]
 }
 fn get_game_list() -> &'static Vec<Box<dyn Game>> {
     GAME_REGISTRY.get_or_init(init_game_list)
@@ -59,7 +61,10 @@ impl CommandHandler for GameHandler {
         }
         let game = game_list.get(select as usize - 1).unwrap();
         println!("🎮 启动游戏中 {}", game);
-        println!("🖥 分辨率：{}x{}，难度：{}", self.width, self.height, self.difficulty);
+        println!(
+            "🖥 分辨率：{}x{}，难度：{}",
+            self.width, self.height, self.difficulty
+        );
         println!("{}", "按q退出游戏".green());
 
         game.run(self.width, self.height, self.difficulty)?;

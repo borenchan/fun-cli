@@ -1,20 +1,4 @@
-use std::collections::HashMap;
-use std::{io, iter};
-use std::cell::RefCell;
-use std::io::{stdout, Write};
-use std::ops::Deref;
-use std::rc::Rc;
-use std::thread::sleep;
-use std::time::{Duration, Instant};
-use clap::{Parser, ValueEnum};
-use crossterm::cursor::{Hide, MoveTo, Show};
-use crossterm::event::KeyCode;
-use crossterm::{execute, queue};
-use crossterm::style::{Color, Print, SetBackgroundColor, Stylize};
-use crossterm::terminal::{disable_raw_mode, enable_raw_mode, size, Clear, ClearType, EnterAlternateScreen, LeaveAlternateScreen};
-use sysinfo::{Components, Disk, System};
 use crate::error::CliError;
-use crate::ui::Coordinate;
 use crate::impls::handlers::CommandHandler;
 use crate::impls::osystem::cpu::CpuWidget;
 use crate::impls::osystem::disk::DiskWidget;
@@ -23,7 +7,25 @@ use crate::impls::osystem::process::ProcessWidget;
 use crate::ui::event::poll_input;
 use crate::ui::theme::Theme;
 use crate::ui::widget::{List, Panel, Widget};
+use crate::ui::Coordinate;
 use crate::utils::consts;
+use clap::{Parser, ValueEnum};
+use crossterm::cursor::{Hide, Show};
+use crossterm::event::KeyCode;
+use crossterm::style::SetBackgroundColor;
+use crossterm::terminal::{
+    size, Clear, ClearType, EnterAlternateScreen
+    , LeaveAlternateScreen,
+};
+use crossterm::execute;
+use std::cell::RefCell;
+use std::collections::HashMap;
+use std::io::{stdout, Write};
+use std::rc::Rc;
+use std::thread::sleep;
+use std::time::Duration;
+use std::io;
+use sysinfo::{Components, System};
 
 #[derive(Debug, Parser)]
 pub struct OsHandler {
@@ -32,11 +34,11 @@ pub struct OsHandler {
     #[arg(short, long,value_enum, default_value_t = Theme::Cyberpunk, help = "主题/cyberpunk/blackgold/fire/ocean/aurora")]
     theme: Theme,
 }
-#[derive(Debug, Clone,ValueEnum)]
+#[derive(Debug, Clone, ValueEnum)]
 pub enum SizeMode {
     Small,
     Middle,
-    Large
+    Large,
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
@@ -47,7 +49,6 @@ pub enum LayoutPosition {
     LeftBottom,
     RightBottom,
 }
-
 
 //布局面板
 struct LayoutPanel {
@@ -63,15 +64,48 @@ struct LayoutPanel {
     theme: Theme,
 }
 impl LayoutPanel {
-    fn calculate_layout(width: u16, height: u16) -> HashMap<LayoutPosition, (Coordinate, Coordinate)>  {
+    fn calculate_layout(
+        width: u16,
+        height: u16,
+    ) -> HashMap<LayoutPosition, (Coordinate, Coordinate)> {
         let half_w = width / 2;
         let percent_h = height / 3;
         let mut layout = HashMap::with_capacity(5);
-        layout.insert(LayoutPosition::Top, (Coordinate::new(1, 1), Coordinate::new(width-1, percent_h-1)));// 顶部区域
-        layout.insert(LayoutPosition::LeftTop, (Coordinate::new(1, percent_h+1), Coordinate::new(half_w, percent_h*2)));// 左上
-        layout.insert(LayoutPosition::RightTop, (Coordinate::new(half_w+1, percent_h+1), Coordinate::new(width-1, percent_h*2-1))); // 右上
-        layout.insert(LayoutPosition::LeftBottom, (Coordinate::new(1, percent_h*2+1), Coordinate::new(half_w-1, height-1))); // 左下
-        layout.insert(LayoutPosition::RightBottom, (Coordinate::new(half_w+1, percent_h*2+1), Coordinate::new(width-1, height-1))); // 右下
+        layout.insert(
+            LayoutPosition::Top,
+            (
+                Coordinate::new(1, 1),
+                Coordinate::new(width - 1, percent_h - 1),
+            ),
+        ); // 顶部区域
+        layout.insert(
+            LayoutPosition::LeftTop,
+            (
+                Coordinate::new(1, percent_h + 1),
+                Coordinate::new(half_w, percent_h * 2),
+            ),
+        ); // 左上
+        layout.insert(
+            LayoutPosition::RightTop,
+            (
+                Coordinate::new(half_w + 1, percent_h + 1),
+                Coordinate::new(width - 1, percent_h * 2 - 1),
+            ),
+        ); // 右上
+        layout.insert(
+            LayoutPosition::LeftBottom,
+            (
+                Coordinate::new(1, percent_h * 2 + 1),
+                Coordinate::new(half_w - 1, height - 1),
+            ),
+        ); // 左下
+        layout.insert(
+            LayoutPosition::RightBottom,
+            (
+                Coordinate::new(half_w + 1, percent_h * 2 + 1),
+                Coordinate::new(width - 1, height - 1),
+            ),
+        ); // 右下
         layout
     }
     fn new(width: u16, height: u16, sys: &mut System, theme: Theme) -> Self {
@@ -83,13 +117,35 @@ impl LayoutPanel {
         let left_bottom = layout.get(&LayoutPosition::LeftBottom).unwrap();
         let right_bottom = layout.get(&LayoutPosition::RightBottom).unwrap();
 
-        let process_panel = Panel::new("Process", ProcessWidget::new(top.0.clone(), top.1.clone(), theme.clone(),sys), theme.clone());
-        let mut overview_list = List::new_with_padding(left_top.0.clone(),left_top.1.clone(), theme.clone(),2);
-        Self::set_overview_panel_list(&mut overview_list,sys);
+        let process_panel = Panel::new(
+            "Process",
+            ProcessWidget::new(top.0.clone(), top.1.clone(), theme.clone(), sys),
+            theme.clone(),
+        );
+        let mut overview_list =
+            List::new_with_padding(left_top.0.clone(), left_top.1.clone(), theme.clone(), 2);
+        Self::set_overview_panel_list(&mut overview_list, sys);
         let overview_panel = Panel::new("INFO", overview_list, theme.clone());
-        let cpu_panel = Panel::new("CPU", CpuWidget::new(right_top.0.clone(), right_top.1.clone(), theme.clone(), sys), theme.clone());
-        let disk_panel = Panel::new("Disk", DiskWidget::new(left_bottom.0.clone(), left_bottom.1.clone(), theme.clone()), theme.clone());
-        let memory_panel = Panel::new("Memory", MemoryWidget::new(right_bottom.0.clone(), right_bottom.1.clone(), theme.clone(), sys), theme.clone());
+        let cpu_panel = Panel::new(
+            "CPU",
+            CpuWidget::new(right_top.0.clone(), right_top.1.clone(), theme.clone(), sys),
+            theme.clone(),
+        );
+        let disk_panel = Panel::new(
+            "Disk",
+            DiskWidget::new(left_bottom.0.clone(), left_bottom.1.clone(), theme.clone()),
+            theme.clone(),
+        );
+        let memory_panel = Panel::new(
+            "Memory",
+            MemoryWidget::new(
+                right_bottom.0.clone(),
+                right_bottom.1.clone(),
+                theme.clone(),
+                sys,
+            ),
+            theme.clone(),
+        );
 
         let mut layout_panel = LayoutPanel {
             overview_panel: Rc::new(RefCell::new(overview_panel)),
@@ -103,8 +159,12 @@ impl LayoutPanel {
             focus_idx: 0,
             focus_mode: false,
         };
-        layout_panel.widgets.push(layout_panel.process_panel.clone());
-        layout_panel.widgets.push(layout_panel.overview_panel.clone());
+        layout_panel
+            .widgets
+            .push(layout_panel.process_panel.clone());
+        layout_panel
+            .widgets
+            .push(layout_panel.overview_panel.clone());
         layout_panel.widgets.push(layout_panel.cpu_panel.clone());
         layout_panel.widgets.push(layout_panel.disk_panel.clone());
         layout_panel.widgets.push(layout_panel.memory_panel.clone());
@@ -122,26 +182,36 @@ impl LayoutPanel {
         // 更新进程面板
         {
             let mut panel = self.process_panel.borrow_mut();
-            let new_widget = ProcessWidget::new(top.0.clone(), top.1.clone(), self.theme.clone(), sys);
+            let new_widget =
+                ProcessWidget::new(top.0.clone(), top.1.clone(), self.theme.clone(), sys);
             panel.update_widget(new_widget);
         }
         // 更新CPU面板
         {
             let mut panel = self.cpu_panel.borrow_mut();
-            let new_widget = CpuWidget::new(right_top.0.clone(), right_top.1.clone(), self.theme.clone(), sys);
+            let new_widget = CpuWidget::new(
+                right_top.0.clone(),
+                right_top.1.clone(),
+                self.theme.clone(),
+                sys,
+            );
             panel.update_widget(new_widget);
         }
         // 更新内存面板
         {
             let mut panel = self.memory_panel.borrow_mut();
-            let new_widget = MemoryWidget::new(right_bottom.0.clone(), right_bottom.1.clone(), self.theme.clone(), sys);
+            let new_widget = MemoryWidget::new(
+                right_bottom.0.clone(),
+                right_bottom.1.clone(),
+                self.theme.clone(),
+                sys,
+            );
             panel.update_widget(new_widget);
         }
-
     }
 
     fn render(&mut self, stdout: &mut io::Stdout) -> Result<(), CliError> {
-        for (index,panel) in self.widgets.iter_mut().enumerate() {
+        for (index, panel) in self.widgets.iter_mut().enumerate() {
             let mut panel_mut = panel.borrow_mut();
             if index == self.focus_idx {
                 panel_mut.set_focus(true);
@@ -151,16 +221,35 @@ impl LayoutPanel {
         }
         Ok(())
     }
-    fn set_overview_panel_list(list: &mut List<String>,sys: &mut System) {
+    fn set_overview_panel_list(list: &mut List<String>, sys: &mut System) {
         let mut vec = vec![];
-        vec.push(format!("System name:             {}", System::name().unwrap_or(consts::UNKNOWN.to_string())));
-        vec.push(format!("System OS version:       {}", System::os_version().unwrap_or(consts::UNKNOWN.to_string())));
-        vec.push(format!("System kernel version:   {}", System::kernel_version().unwrap_or(consts::UNKNOWN.to_string())));
-        vec.push(format!("System host name:        {}", System::host_name().unwrap_or(consts::UNKNOWN.to_string())));
-        vec.push(format!("System cpu_arch:         {}", System::cpu_arch().unwrap_or(consts::UNKNOWN.to_string())));
+        vec.push(format!(
+            "System name:             {}",
+            System::name().unwrap_or(consts::UNKNOWN.to_string())
+        ));
+        vec.push(format!(
+            "System OS version:       {}",
+            System::os_version().unwrap_or(consts::UNKNOWN.to_string())
+        ));
+        vec.push(format!(
+            "System kernel version:   {}",
+            System::kernel_version().unwrap_or(consts::UNKNOWN.to_string())
+        ));
+        vec.push(format!(
+            "System host name:        {}",
+            System::host_name().unwrap_or(consts::UNKNOWN.to_string())
+        ));
+        vec.push(format!(
+            "System cpu_arch:         {}",
+            System::cpu_arch().unwrap_or(consts::UNKNOWN.to_string())
+        ));
         let components = Components::new_with_refreshed_list();
         for component in &components {
-            vec.push(format!("组件: {:<10}  温度: {:<5.1}°C",component.label(), component.temperature()));
+            vec.push(format!(
+                "组件: {:<10}  温度: {:<5.1}°C",
+                component.label(),
+                component.temperature()
+            ));
         }
         list.set_items(vec);
     }
@@ -175,7 +264,7 @@ impl LayoutPanel {
             } else {
                 self.focus_idx - 1
             };
-        }else {
+        } else {
             self.focus_idx = (self.focus_idx + 1) % self.widgets.len();
         }
         if let Some(pan) = self.widgets.get_mut(self.focus_idx) {
@@ -184,27 +273,29 @@ impl LayoutPanel {
     }
     /// 处理按键
     /// true：表示需要重建UI组件， false表示仅重新渲染数据即可
-    fn handle_event(&mut self, key_code: KeyCode)-> bool  {
+    fn handle_event(&mut self, key_code: KeyCode) -> bool {
         match key_code {
             KeyCode::Up | KeyCode::Down | KeyCode::Tab => {
                 if !self.focus_mode {
                     self.next_focus(key_code);
-                }else {
-                    self.widgets[self.focus_idx].borrow_mut().handle_event(key_code);
+                } else {
+                    self.widgets[self.focus_idx]
+                        .borrow_mut()
+                        .handle_event(key_code);
                 }
                 false
-            },
+            }
             KeyCode::Enter => {
                 self.focus_mode = true;
                 false
-            },
+            }
             KeyCode::Esc => {
                 self.focus_mode = false;
                 false
-            },
-            _ => {
-                self.widgets[self.focus_idx].borrow_mut().handle_event(key_code)
             }
+            _ => self.widgets[self.focus_idx]
+                .borrow_mut()
+                .handle_event(key_code),
         }
     }
 }
@@ -213,20 +304,22 @@ impl CommandHandler for OsHandler {
         let mut stdout = stdout();
         let mut sys = System::new_all();
         // enable_raw_mode()?;
-        execute!(stdout,
+        execute!(
+            stdout,
             EnterAlternateScreen,
-            SetBackgroundColor(self.theme.background_color()))?;
-        execute!(stdout,Clear(ClearType::All),Hide)?;
+            SetBackgroundColor(self.theme.background_color())
+        )?;
+        execute!(stdout, Clear(ClearType::All), Hide)?;
         let (terminal_width, terminal_height) = size()?;
         //terminal_width = terminal_width & !1 // 可以利用 & !1 对1按位取反操作。实现位运算向下取偶操作
         let (mut width, mut height) = match self.size {
-            SizeMode::Small => (terminal_width/3, terminal_height/3),
-            SizeMode::Middle => (terminal_width/2,terminal_height/2),
-            SizeMode::Large => (terminal_width- 2, terminal_height-2)
+            SizeMode::Small => (terminal_width / 3, terminal_height / 3),
+            SizeMode::Middle => (terminal_width / 2, terminal_height / 2),
+            SizeMode::Large => (terminal_width - 2, terminal_height - 2),
         };
-        width = (width/2)*2;
-        height = (height/3)*3;
-        let mut layout_panel = LayoutPanel::new(width, height,&mut sys , self.theme.clone());
+        width = (width / 2) * 2;
+        height = (height / 3) * 3;
+        let mut layout_panel = LayoutPanel::new(width, height, &mut sys, self.theme.clone());
         let mut last_refresh = 1;
         loop {
             layout_panel.render(&mut stdout)?;
@@ -238,18 +331,18 @@ impl CommandHandler for OsHandler {
                     _ => {
                         if layout_panel.handle_event(code) {
                             layout_panel.update_system_info(&mut sys);
-                            last_refresh =0;
+                            last_refresh = 0;
                         }
                     }
                 }
             } else {
                 sleep(Duration::from_millis(100));
-                if last_refresh%20 == 0 {
+                if last_refresh % 20 == 0 {
                     layout_panel.update_system_info(&mut sys);
                 }
             }
-            last_refresh+=1;
-            execute!(stdout,Clear(ClearType::All))?;
+            last_refresh += 1;
+            execute!(stdout, Clear(ClearType::All))?;
         }
         // disable_raw_mode()?;
         //恢复终端
@@ -286,6 +379,5 @@ mod tests {
         for (pid, process) in sys.processes() {
             println!("[{pid}] {:?} {:?}", process.name(), process.disk_usage());
         }
-
     }
 }

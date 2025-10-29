@@ -9,7 +9,7 @@ pub struct Entity {
     pub last_y: u16,
 }
 
-pub trait GameEntity{
+pub trait GameEntity {
     fn position(&self) -> Coordinate;
 
     fn last_position(&self) -> Coordinate;
@@ -18,11 +18,11 @@ pub trait GameEntity{
 
     fn display(&self) -> &str;
 
-    fn width(&self) -> u16 ;
+    fn width(&self) -> u16;
 
     fn coll_detect(&self, other: &dyn GameEntity) -> bool {
-        self.position().x < other.position().x + other.width() &&
-            self.position().x + self.width() > other.position().x &&
-            self.position().y == other.position().y
+        self.position().x < other.position().x + other.width()
+            && self.position().x + self.width() > other.position().x
+            && self.position().y == other.position().y
     }
 }
