@@ -1,5 +1,6 @@
 use crate::error::CliError;
 use crate::impls::games::thunder_fighter::game::ThunderFighterGame;
+use crate::impls::games::tetris::game::TetrisGame;
 use crate::impls::handlers::CommandHandler;
 use clap::Parser;
 use crossterm::style::Stylize;
@@ -40,7 +41,7 @@ impl Display for dyn Game {
 }
 static GAME_REGISTRY: OnceLock<Vec<Box<dyn Game>>> = OnceLock::new();
 fn init_game_list() -> Vec<Box<dyn Game>> {
-    vec![Box::new(ThunderFighterGame {})]
+    vec![Box::new(ThunderFighterGame {}), Box::new(TetrisGame {})]
 }
 fn get_game_list() -> &'static Vec<Box<dyn Game>> {
     GAME_REGISTRY.get_or_init(init_game_list)

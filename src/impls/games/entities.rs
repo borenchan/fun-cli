@@ -1,5 +1,6 @@
 use crate::ui::Coordinate;
 
+#[derive(Clone)]
 pub struct Entity {
     pub x: u16,
     pub y: u16,
