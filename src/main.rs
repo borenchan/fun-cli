@@ -1,8 +1,8 @@
 mod cli;
-mod impls;
 mod error;
-mod utils;
+mod impls;
 mod ui;
+mod utils;
 
 use crate::cli::FunCli;
 use clap::Parser;
@@ -12,6 +12,3 @@ fn main() {
     let commands = cli.command;
     commands.run();
 }
-
-
-

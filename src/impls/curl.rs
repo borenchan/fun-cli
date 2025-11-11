@@ -1,13 +1,12 @@
-use std::path::PathBuf;
-use std::time::Instant;
-use clap::{Parser, ValueEnum, ValueHint};
-use reqwest::blocking::Client;
 use crate::error::CliError;
 use crate::impls::handlers::CommandHandler;
+use clap::{Parser, ValueEnum, ValueHint};
+use reqwest::blocking::Client;
+use std::path::PathBuf;
+use std::time::Instant;
 
-#[derive(Debug,Parser)]
+#[derive(Debug, Parser)]
 pub struct CurlHandler {
-
     #[arg(
         value_hint = ValueHint::Url,
         value_parser = parse_url,
@@ -33,12 +32,8 @@ pub struct CurlHandler {
     )]
     headers: Option<Vec<(String, String)>>,
 
-    #[arg(
-        short,
-        long,
-        help = "请求的Body"
-    )]
-    data : Option<String>,
+    #[arg(short, long, help = "请求的Body")]
+    data: Option<String>,
 
     #[arg(
         short,
@@ -57,7 +52,7 @@ enum HttpMethod {
     Put,
     Patch,
     Delete,
-    Options
+    Options,
 }
 fn parse_url(url: &str) -> Result<String, String> {
     if url.starts_with("http://") || url.starts_with("https://") {
@@ -85,23 +80,23 @@ impl CommandHandler for CurlHandler {
             HttpMethod::Put => client.put(&self.url),
             HttpMethod::Patch => client.patch(&self.url),
             HttpMethod::Delete => client.delete(&self.url),
-            HttpMethod::Options => client.request(reqwest::Method::OPTIONS,&self.url)
+            HttpMethod::Options => client.request(reqwest::Method::OPTIONS, &self.url),
         };
-        if let Some (headers) = &self.headers{
+        if let Some(headers) = &self.headers {
             println!("请求头：");
             for (key, value) in headers.iter() {
-                println!("{}:{}", key, value );
+                println!("{}:{}", key, value);
                 req = req.header(key, value);
-            };
+            }
             // headers.iter().for_each(|(key, value)| println!("{}:{}", key, value));
         }
-        if let Some(data) = &self.data{
+        if let Some(data) = &self.data {
             req = req.body(data.to_string());
             println!("请求体：{}", data);
         }
         let start = Instant::now();
 
-        if let Some(output) = &self.output{
+        if let Some(output) = &self.output {
             let resp = req.send()?.error_for_status()?;
             let elapsed = start.elapsed().as_millis();
             println!("请求耗时：{}ms", elapsed);
@@ -116,7 +111,7 @@ impl CommandHandler for CurlHandler {
             println!("响应头：");
             for x in resp.headers() {
                 if let Ok(val) = x.1.to_str() {
-                    println!("{}:{}", x.0,val)
+                    println!("{}:{}", x.0, val)
                 }
             }
             println!("✅ 响应体：");

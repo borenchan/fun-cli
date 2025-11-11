@@ -1,3 +1,2 @@
-
-pub mod game;
 mod entity;
+pub mod game;

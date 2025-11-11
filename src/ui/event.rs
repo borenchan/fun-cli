@@ -1,7 +1,7 @@
-use std::time::Duration;
+use crate::error::CliError;
 use crossterm::event;
 use crossterm::event::{KeyCode, KeyEventKind};
-use crate::error::CliError;
+use std::time::Duration;
 
 /// 非阻塞输入轮询
 pub fn poll_input() -> Result<Option<KeyCode>, CliError> {

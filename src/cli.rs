@@ -1,17 +1,16 @@
 use crate::impls::curl::CurlHandler;
-use crate::impls::handlers::{CombineHandler, CommandHandler};
+use crate::impls::game::GameHandler;
+use crate::impls::handlers::CombineHandler;
 use crate::impls::music::MusicHandler;
+use crate::impls::os::OsHandler;
 use crate::impls::weather::WeatherHandler;
 use crate::utils::consts::BANNER;
 use clap::{Parser, Subcommand};
 use crossterm::style::Stylize;
-use crate::impls::game::GameHandler;
-use crate::impls::os::OsHandler;
 
 #[derive(Debug, Parser)]
 #[command(name = "fun", author, version, about, long_about = BANNER )]
 pub struct FunCli {
-
     #[command(subcommand)]
     pub command: Commands,
 }
@@ -33,7 +32,6 @@ pub enum Commands {
 
     #[command(name = "os", version, about = "操作系统")]
     Os(OsHandler),
-
 }
 
 impl Commands {
@@ -43,11 +41,11 @@ impl Commands {
         match combine_handlers.matches_handler(self) {
             Ok(handler) => {
                 if let Err(cli_err) = handler.run() {
-                    eprintln!("{}: {}", "error".red().bold(),cli_err.to_string().italic());
+                    eprintln!("{}: {}", "error".red().bold(), cli_err.to_string().italic());
                 }
             }
             Err(cli_err) => {
-                eprintln!("{}: {}", "error".red().bold(),cli_err.to_string().italic());
+                eprintln!("{}: {}", "error".red().bold(), cli_err.to_string().italic());
             }
         }
     }
