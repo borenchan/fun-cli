@@ -21,9 +21,11 @@
 **`fun-cli` is a constantly growing command-line entertainment toolkit** designed for those who find work boring. Here, you can:
 - ☔ Check the weather for your family and friends anytime
 - 🎵 Play your favorite music with an ASCII spectrum
-- 🕹️ Play Thunder Fighter and relive childhood joy (Immersive gameplay, press Q to exit)
+- 🕹️ Play Thunder Fighter and relive childhood joy (*Immersive gameplay, press Q to exit*)
+- 🟦 Tetris - Classic puzzle game (*Arrow keys to control, space to drop*)
+- ⚫⚪ Gomoku (Five in a Row) vs AI (*4 difficulty levels, Hell mode will blow your mind*)
 - 💻 Monitor your computer with a cool monitoring panel
-- 📝 Run on all platforms (Windows, MacOS, Linux)
+- 📝 Run on **all platforms** (*Windows, MacOS, Linux*)
 - ...**or contribute your own creative ideas!**
 
 
@@ -57,6 +59,69 @@ cargo test -- --nocapture # Prevent output from being swallowed
 # Congratulations! You can start having fun
 fun -h # View help
 ```
+
+## 🎯 **Usage Examples**
+
+### Games
+
+#### Gomoku (Five in a Row) ◉◎
+```bash
+# Default difficulty (Easy)
+fun game -s 3
+
+# Medium difficulty
+fun game -s 3 -d 2
+
+# Hard mode (Minimax depth 4)
+fun game -s 3 -d 3
+
+# Hell mode (Minimax depth 6 + advanced pattern recognition)
+fun game -s 3 -d 4
+
+# Custom board size (9-19)
+fun game -s 3 -w 19 -H 19 -d 3
+```
+
+**Game Features:**
+- 🎮 **4 AI Difficulty Levels**: From random rookie to hell-level demon
+- 🧠 **Smart AI**: Minimax search + Alpha-Beta pruning + Transposition table optimization
+- 🎨 **Pattern Recognition**: Live-Four, Dead-Four, Live-Three, Double-Three, Four-Three patterns
+- ⚡ **Performance Optimized**: Smart candidate pruning, smooth even in Hell mode
+- 🎯 **Perfect Defense**: AI never misses any threat
+
+**Controls:**
+- Arrow keys: Move cursor
+- Enter: Place stone
+- Q: Quit game
+- R: Restart after game over
+
+#### Tetris 🟦
+```bash
+fun game -s 2
+```
+
+#### Thunder Fighter 🕹️
+```bash
+fun game -s 1
+```
+
+### Other Features
+
+#### Weather Query ☔
+```bash
+fun weather Beijing
+```
+
+#### Music Player 🎵
+```bash
+fun music play /path/to/your/music.mp3
+```
+
+#### System Monitor 💻
+```bash
+fun osystem
+```
+
 ## 🚀 **Why Join?**
 - Practice programming in the happiest way **Happiness is the fundamental motivation for programming**
 - No serious code reviews needed, **fun is the primary productivity**

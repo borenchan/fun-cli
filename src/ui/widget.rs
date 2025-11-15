@@ -1,11 +1,11 @@
-use crate::ui::theme::Theme;
 use crate::ui::Coordinate;
+use crate::ui::theme::Theme;
 use crossterm::cursor::MoveTo;
 use crossterm::event::KeyCode;
-use crossterm::style::{Print, ResetColor, SetForegroundColor};
 use crossterm::queue;
+use crossterm::style::{Print, ResetColor, SetForegroundColor};
 use std::fmt::Display;
-use std::io::{self, Stdout};
+use std::io::{self, Stdout, Write};
 
 // 所有UI组件的基础特征
 pub trait Widget {

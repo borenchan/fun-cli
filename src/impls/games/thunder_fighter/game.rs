@@ -1,7 +1,8 @@
 use crate::error::CliError;
-use crate::impls::games::entities::{Entity, GameEntity};
 use crate::impls::game::Game;
+use crate::impls::games::entities::{Entity, GameEntity};
 use crate::impls::games::thunder_fighter::entity::{Enemy, Player};
+use crate::ui::event::poll_input;
 use crate::utils::consts;
 use crossterm::event::KeyCode;
 use crossterm::style::{Print, Stylize};
@@ -12,11 +13,10 @@ use std::ops::Deref;
 use std::panic::catch_unwind;
 use std::sync::mpsc::channel;
 use std::sync::{Arc, Mutex};
+use std::thread;
 use std::thread::sleep;
 use std::time::Duration;
-use std::thread;
 use unicode_width::UnicodeWidthStr;
-use crate::ui::event::poll_input;
 
 pub struct ThunderFighterGame;
 struct ThunderFighterGameState {
@@ -46,7 +46,7 @@ impl ThunderFighterGameState {
             player: Player {
                 entity: Entity {
                     x: width / 2,
-                    y: height- height / 4,
+                    y: height - height / 4,
                     display: PLAYER_DISPLAY.to_string(),
                     width: UnicodeWidthStr::width(PLAYER_DISPLAY) as u16,
                     last_x: width / 2,
@@ -110,16 +110,16 @@ impl ThunderFighterGameState {
     /// 更新地图上实体的位置
     fn update_enemies(&mut self) {
         //攻击频率
-        let diff_rx = 1.0 / f32::from(self.difficulty) ;
+        let diff_rx = 1.0 / f32::from(self.difficulty);
         let is_attack_frame = self.frame_count % ((4.0 * diff_rx * 10.0) as u128) == 0;
         let is_move_frame = self.frame_count % ((1.0 * diff_rx * 10.0) as u128) == 0;
 
         for enemy in self.enemies.iter_mut() {
             //enemy.update(self.height);
             if is_move_frame {
-                enemy.update_bullets_by_speed(self.height);    
+                enemy.update_bullets_by_speed(self.height);
             }
-        
+
             if is_attack_frame {
                 enemy.attack_bullet(self.height);
             }
@@ -132,7 +132,7 @@ impl ThunderFighterGameState {
                     self.player.health -= 10;
                 }
             }
-            
+
             if enemy.is_dead() {
                 self.score += 1;
             }
@@ -153,9 +153,8 @@ impl ThunderFighterGameState {
                 if bullet.coll_detect(enemy.deref()) {
                     enemy.health -= 10;
                 }
-            }    
+            }
         }
-    
     }
 
     /// 渲染玩家
@@ -209,8 +208,6 @@ impl ThunderFighterGameState {
     }
 }
 
-
-
 impl Game for ThunderFighterGame {
     fn name(&self) -> &'static str {
         "雷霆战机✈️"
@@ -227,9 +224,14 @@ impl Game for ThunderFighterGame {
         )));
         // 进入全屏 EnterAlternateScreen
         let mut stdout = stdout();
-        execute!(stdout,cursor::Hide)?;
+        execute!(stdout, cursor::Hide)?;
         terminal::enable_raw_mode()?;
-        execute!(stdout, EnterAlternateScreen,Clear(ClearType::All), cursor::MoveTo(0, 0))?;
+        execute!(
+            stdout,
+            EnterAlternateScreen,
+            Clear(ClearType::All),
+            cursor::MoveTo(0, 0)
+        )?;
         let g1 = game.clone();
         {
             let mut game_state = g1.lock().unwrap();
@@ -240,17 +242,17 @@ impl Game for ThunderFighterGame {
         thread::spawn(move || {
             loop {
                 //捕获panic!
-                let result = catch_unwind( || {
+                let result = catch_unwind(|| {
                     let mut game_state = g1.lock().unwrap();
                     game_state.update_enemies();
                     game_state.render_enemies().unwrap();
                     game_state.frame_count += 1;
                 });
-            
+
                 if result.is_err() {
                     tx.send("games update error!".to_owned()).unwrap();
                 }
-                
+
                 //控制刷新帧率
                 sleep(Duration::from_millis(100));
             }

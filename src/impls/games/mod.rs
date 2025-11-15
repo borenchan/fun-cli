@@ -1,3 +1,4 @@
 pub mod entities;
-pub mod thunder_fighter;
+pub mod gomoku;
 pub mod tetris;
+pub mod thunder_fighter;
