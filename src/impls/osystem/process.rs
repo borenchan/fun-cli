@@ -1,12 +1,12 @@
+use crate::ui::Coordinate;
 use crate::ui::theme::Theme;
 use crate::ui::widget::{List, Widget};
-use crate::ui::Coordinate;
 use crate::utils::consts;
 use crossterm::cursor::MoveTo;
 use crossterm::event::KeyCode;
 use crossterm::queue;
 use crossterm::style::{Print, SetForegroundColor};
-use netstat2::{get_sockets_info, AddressFamilyFlags, ProtocolFlags, ProtocolSocketInfo};
+use netstat2::{AddressFamilyFlags, ProtocolFlags, ProtocolSocketInfo, get_sockets_info};
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::io::Stdout;

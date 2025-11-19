@@ -1,7 +1,7 @@
 use crate::error::CliError;
+use crate::impls::game::Game;
 use crate::impls::games::entities::{Entity, GameEntity};
 use crate::impls::games::tetris::entity::{TetrisBlock, TetrisPiece};
-use crate::impls::game::Game;
 use crate::ui::event::poll_input;
 use crossterm::event::KeyCode;
 use crossterm::style::{Color, Print, Stylize};
@@ -9,9 +9,9 @@ use crossterm::terminal::{Clear, ClearType, EnterAlternateScreen, LeaveAlternate
 use crossterm::{cursor, execute, queue, terminal};
 use std::io::{Stdout, Write, stdout};
 use std::sync::{Arc, Mutex};
+use std::thread;
 use std::thread::sleep;
 use std::time::Duration;
-use std::thread;
 
 pub struct TetrisGame;
 
@@ -67,11 +67,7 @@ impl TetrisGameState {
         // 从顶部开始，留一些空间给方块显示
         let start_y = 1;
 
-        let new_piece = TetrisPiece::new(
-            start_x,
-            start_y,
-            piece_type,
-        );
+        let new_piece = TetrisPiece::new(start_x, start_y, piece_type);
 
         // Check if spawn position is valid
         if self.is_valid_position(&new_piece) {
@@ -134,7 +130,9 @@ impl TetrisGameState {
             let blocks = test_piece.get_blocks();
             let width = self.width;
             let height = self.height;
-            let placed_positions: Vec<(u16, u16)> = self.placed_blocks.iter()
+            let placed_positions: Vec<(u16, u16)> = self
+                .placed_blocks
+                .iter()
                 .map(|b| (b.position().x, b.position().y))
                 .collect();
 
@@ -152,7 +150,12 @@ impl TetrisGameState {
         }
     }
 
-    fn validate_move(blocks: &[crate::ui::Coordinate], width: u16, height: u16, placed_positions: &[(u16, u16)]) -> bool {
+    fn validate_move(
+        blocks: &[crate::ui::Coordinate],
+        width: u16,
+        height: u16,
+        placed_positions: &[(u16, u16)],
+    ) -> bool {
         for block in blocks {
             // Check boundaries - 每个方块占2个字符宽，所以需要检查 x+1
             if block.x < 1 || block.x + 2 > width - 1 || block.y >= height - 1 {
@@ -170,7 +173,13 @@ impl TetrisGameState {
     }
 
     #[allow(dead_code)]
-    fn check_move_validity(&self, blocks: &[crate::ui::Coordinate], width: u16, height: u16, placed_positions: &[(u16, u16)]) -> bool {
+    fn check_move_validity(
+        &self,
+        blocks: &[crate::ui::Coordinate],
+        width: u16,
+        height: u16,
+        placed_positions: &[(u16, u16)],
+    ) -> bool {
         for block in blocks {
             // Check boundaries - 每个方块占2个字符宽
             if block.x < 1 || block.x + 2 > width - 1 || block.y >= height - 1 {
@@ -188,7 +197,12 @@ impl TetrisGameState {
     }
 
     #[allow(dead_code)]
-    fn check_blocks_validity(&self, blocks: &[crate::ui::Coordinate], width: u16, height: u16) -> bool {
+    fn check_blocks_validity(
+        &self,
+        blocks: &[crate::ui::Coordinate],
+        width: u16,
+        height: u16,
+    ) -> bool {
         for block in blocks {
             // Check boundaries - 每个方块占2个字符宽
             if block.x < 1 || block.x + 2 > width - 1 || block.y >= height - 1 {
@@ -216,7 +230,9 @@ impl TetrisGameState {
             let blocks = test_piece.get_blocks();
             let width = self.width;
             let height = self.height;
-            let placed_positions: Vec<(u16, u16)> = self.placed_blocks.iter()
+            let placed_positions: Vec<(u16, u16)> = self
+                .placed_blocks
+                .iter()
                 .map(|b| (b.position().x, b.position().y))
                 .collect();
 
@@ -269,7 +285,9 @@ impl TetrisGameState {
             // Extract all data needed for validation to avoid borrowing conflicts
             let width = self.width;
             let height = self.height;
-            let placed_positions: Vec<(u16, u16)> = self.placed_blocks.iter()
+            let placed_positions: Vec<(u16, u16)> = self
+                .placed_blocks
+                .iter()
                 .map(|b| (b.position().x, b.position().y))
                 .collect();
 
@@ -311,11 +329,8 @@ impl TetrisGameState {
             let color_code = piece.color_code;
 
             for block_pos in blocks {
-                self.placed_blocks.push(TetrisBlock::new(
-                    block_pos.x,
-                    block_pos.y,
-                    color_code,
-                ));
+                self.placed_blocks
+                    .push(TetrisBlock::new(block_pos.x, block_pos.y, color_code));
             }
 
             self.clear_lines();
@@ -333,7 +348,9 @@ impl TetrisGameState {
             let expected_blocks = (self.width - 4) / 2;
 
             // 统计这一行实际有多少个方块
-            let actual_blocks = self.placed_blocks.iter()
+            let actual_blocks = self
+                .placed_blocks
+                .iter()
                 .filter(|block| block.position().y == y)
                 .count() as u16;
 
@@ -345,7 +362,8 @@ impl TetrisGameState {
 
         // Clear lines and update score
         for &line_y in lines_to_clear.iter().rev() {
-            self.placed_blocks.retain(|block| block.position().y != line_y);
+            self.placed_blocks
+                .retain(|block| block.position().y != line_y);
 
             // Move all blocks above down
             for block in &mut self.placed_blocks {
@@ -406,13 +424,16 @@ impl TetrisGameState {
         // 难度2: 等级1=20ticks -> 等级5=10ticks -> 等级10+=3ticks
         // 难度3: 等级1=10ticks -> 等级5=5ticks -> 等级10+=3ticks
         let (base_speed, level_multiplier) = match self.difficulty {
-            1 => (34u64, 4u64),   // 难度1: 34 - 等级*4, 等级1=30, 等级5=14, 等级8+=2
-            2 => (23u64, 3u64),   // 难度2: 23 - 等级*3, 等级1=20, 等级5=8, 等级7+=2
-            3 => (12u64, 2u64),   // 难度3: 12 - 等级*2, 等级1=10, 等级5=2
-            _ => (34u64, 4u64),   // 默认难度1
+            1 => (34u64, 4u64), // 难度1: 34 - 等级*4, 等级1=30, 等级5=14, 等级8+=2
+            2 => (23u64, 3u64), // 难度2: 23 - 等级*3, 等级1=20, 等级5=8, 等级7+=2
+            3 => (12u64, 2u64), // 难度3: 12 - 等级*2, 等级1=10, 等级5=2
+            _ => (34u64, 4u64), // 默认难度1
         };
 
-        let drop_interval = std::cmp::max(3, base_speed.saturating_sub(self.level as u64 * level_multiplier));
+        let drop_interval = std::cmp::max(
+            3,
+            base_speed.saturating_sub(self.level as u64 * level_multiplier),
+        );
 
         if self.current_piece.is_none() {
             if !self.spawn_new_piece() {
@@ -511,7 +532,11 @@ impl TetrisGameState {
                 Print("[]".with(Color::DarkGrey))
             )?;
             // 右边界位置需要对齐到偶数位置
-            let right_border_x = if self.width % 2 == 0 { self.width - 2 } else { self.width - 1 };
+            let right_border_x = if self.width % 2 == 0 {
+                self.width - 2
+            } else {
+                self.width - 1
+            };
             queue!(
                 self.stdout,
                 cursor::MoveTo(right_border_x, y),
@@ -521,7 +546,6 @@ impl TetrisGameState {
 
         Ok(())
     }
-
 
     fn draw_ui(&mut self) -> Result<(), CliError> {
         // 使用queue!而不是execute!来批量处理，减少闪烁
@@ -630,7 +654,9 @@ impl Game for TetrisGame {
         let game_height = std::cmp::max(25, height);
 
         let game_state = Arc::new(Mutex::new(TetrisGameState::new(
-            game_width, game_height, difficulty,
+            game_width,
+            game_height,
+            difficulty,
         )));
 
         // 立即生成第一个方块
@@ -646,7 +672,12 @@ impl Game for TetrisGame {
         let mut stdout = stdout();
         execute!(stdout, cursor::Hide)?;
         terminal::enable_raw_mode()?;
-        execute!(stdout, EnterAlternateScreen, Clear(ClearType::All), cursor::MoveTo(0, 0))?;
+        execute!(
+            stdout,
+            EnterAlternateScreen,
+            Clear(ClearType::All),
+            cursor::MoveTo(0, 0)
+        )?;
 
         // 初始渲染一次
         {

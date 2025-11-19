@@ -1,6 +1,6 @@
+use crate::ui::Coordinate;
 use crate::ui::theme::Theme;
 use crate::ui::widget::Widget;
-use crate::ui::Coordinate;
 use crate::utils::consts;
 use crossterm::cursor::MoveTo;
 use crossterm::queue;

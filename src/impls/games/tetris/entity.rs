@@ -66,10 +66,7 @@ pub struct TetrisPiece {
 impl TetrisPiece {
     pub fn new(x: u16, y: u16, piece_type: usize) -> Self {
         let display = Self::get_piece_display(piece_type, 0);
-        let width = display.lines()
-            .map(|line| line.len())
-            .max()
-            .unwrap_or(0) as u16;
+        let width = display.lines().map(|line| line.len()).max().unwrap_or(0) as u16;
 
         Self {
             entity: Entity {
@@ -96,7 +93,8 @@ impl TetrisPiece {
     pub fn rotate(&mut self) {
         self.rotation = (self.rotation + 1) % 4;
         let new_display = Self::get_piece_display(self.piece_type, self.rotation);
-        self.entity.width = new_display.lines()
+        self.entity.width = new_display
+            .lines()
             .map(|line| line.len())
             .max()
             .unwrap_or(0) as u16;

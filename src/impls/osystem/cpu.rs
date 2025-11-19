@@ -1,10 +1,10 @@
+use crate::ui::Coordinate;
 use crate::ui::theme::Theme;
 use crate::ui::widget::Widget;
-use crate::ui::Coordinate;
 use crate::utils::consts;
 use crossterm::cursor::MoveTo;
-use crossterm::style::{Print, SetForegroundColor};
 use crossterm::queue;
+use crossterm::style::{Print, SetForegroundColor};
 use std::io::Stdout;
 use sysinfo::System;
 

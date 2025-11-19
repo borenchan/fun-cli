@@ -7,10 +7,10 @@ use crossterm::terminal::{Clear, ClearType};
 use crossterm::{execute, queue};
 use reqwest::blocking::Client;
 use rodio::{Decoder, OutputStream, Sink, Source};
-use rustfft::num_complex::Complex;
 use rustfft::FftPlanner;
+use rustfft::num_complex::Complex;
 use serde::Deserialize;
-use std::io::{stdout, BufReader, Cursor, Write};
+use std::io::{BufReader, Cursor, Write, stdout};
 use std::time::{Duration, Instant};
 use url::form_urlencoded;
 

@@ -4,27 +4,24 @@ use crate::impls::osystem::cpu::CpuWidget;
 use crate::impls::osystem::disk::DiskWidget;
 use crate::impls::osystem::memory::MemoryWidget;
 use crate::impls::osystem::process::ProcessWidget;
+use crate::ui::Coordinate;
 use crate::ui::event::poll_input;
 use crate::ui::theme::Theme;
 use crate::ui::widget::{List, Panel, Widget};
-use crate::ui::Coordinate;
 use crate::utils::consts;
 use clap::{Parser, ValueEnum};
 use crossterm::cursor::{Hide, Show};
 use crossterm::event::KeyCode;
-use crossterm::style::SetBackgroundColor;
-use crossterm::terminal::{
-    size, Clear, ClearType, EnterAlternateScreen
-    , LeaveAlternateScreen,
-};
 use crossterm::execute;
+use crossterm::style::SetBackgroundColor;
+use crossterm::terminal::{Clear, ClearType, EnterAlternateScreen, LeaveAlternateScreen, size};
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::io::{stdout, Write};
+use std::io;
+use std::io::{Write, stdout};
 use std::rc::Rc;
 use std::thread::sleep;
 use std::time::Duration;
-use std::io;
 use sysinfo::{Components, System};
 
 #[derive(Debug, Parser)]
