@@ -24,10 +24,7 @@ struct GomokuGameState {
 }
 
 impl GomokuGameState {
-    pub fn new(
-        size: usize,
-        difficulty: u8,
-    ) -> Self {
+    pub fn new(size: usize, difficulty: u8) -> Self {
         let ai_strategy = select_strategy(difficulty);
         let cursor_pos = Position::new(size / 2, size / 2);
 
@@ -271,12 +268,7 @@ impl Game for GomokuGame {
         "人机对战五子棋，支持四种难度等级（1简单 2中等 3困难 4地狱）"
     }
 
-    fn run(
-        &self,
-        width: u16,
-        height: u16,
-        difficulty: u8,
-    ) -> Result<(), CliError> {
+    fn run(&self, width: u16, height: u16, difficulty: u8) -> Result<(), CliError> {
         // 确定棋盘大小，如果使用默认值（80x30），则使用 15x15
         let size = if width == 80 && height == 30 {
             15 // 标准五子棋棋盘大小

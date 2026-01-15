@@ -31,11 +31,7 @@ struct TetrisGameState {
 }
 
 impl TetrisGameState {
-    pub fn new(
-        width: u16,
-        height: u16,
-        difficulty: u8,
-    ) -> Self {
+    pub fn new(width: u16, height: u16, difficulty: u8) -> Self {
         Self {
             width,
             height,
@@ -83,18 +79,12 @@ impl TetrisGameState {
         }
     }
 
-    fn is_valid_position(
-        &self,
-        piece: &TetrisPiece,
-    ) -> bool {
+    fn is_valid_position(&self, piece: &TetrisPiece) -> bool {
         let blocks = piece.get_blocks();
         self.are_blocks_valid(&blocks)
     }
 
-    fn are_blocks_valid(
-        &self,
-        blocks: &[crate::ui::Coordinate],
-    ) -> bool {
+    fn are_blocks_valid(&self, blocks: &[crate::ui::Coordinate]) -> bool {
         let width = self.width;
         let height = self.height;
 
@@ -116,11 +106,7 @@ impl TetrisGameState {
         true
     }
 
-    fn try_move_piece(
-        &mut self,
-        delta_x: i16,
-        delta_y: i16,
-    ) -> bool {
+    fn try_move_piece(&mut self, delta_x: i16, delta_y: i16) -> bool {
         if let Some(ref mut piece) = self.current_piece {
             let current_pos = piece.position();
 
@@ -208,12 +194,7 @@ impl TetrisGameState {
     }
 
     #[allow(dead_code)]
-    fn check_blocks_validity(
-        &self,
-        blocks: &[crate::ui::Coordinate],
-        width: u16,
-        height: u16,
-    ) -> bool {
+    fn check_blocks_validity(&self, blocks: &[crate::ui::Coordinate], width: u16, height: u16) -> bool {
         for block in blocks {
             // Check boundaries - 每个方块占2个字符宽
             if block.x < 1 || block.x + 2 > width - 1 || block.y >= height - 1 {
@@ -379,10 +360,7 @@ impl TetrisGameState {
         self.level = 1 + (self.lines_cleared / 10);
     }
 
-    fn handle_input(
-        &mut self,
-        code: KeyCode,
-    ) -> Result<bool, CliError> {
+    fn handle_input(&mut self, code: KeyCode) -> Result<bool, CliError> {
         match code {
             KeyCode::Left => {
                 self.move_piece_left();
@@ -586,10 +564,7 @@ impl TetrisGameState {
         Ok(())
     }
 
-    fn get_color(
-        &self,
-        color_code: u8,
-    ) -> Color {
+    fn get_color(&self, color_code: u8) -> Color {
         match color_code {
             1 => Color::Cyan,
             2 => Color::Yellow,
@@ -612,12 +587,7 @@ impl Game for TetrisGame {
         "使用方向键控制方块，空格键快速下降"
     }
 
-    fn run(
-        &self,
-        width: u16,
-        height: u16,
-        difficulty: u8,
-    ) -> Result<(), CliError> {
+    fn run(&self, width: u16, height: u16, difficulty: u8) -> Result<(), CliError> {
         println!("{}运行中", self.name());
 
         // Ensure minimum dimensions

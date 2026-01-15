@@ -8,10 +8,7 @@ pub struct Coordinate {
     pub y: u16,
 }
 impl Coordinate {
-    pub fn new(
-        x: u16,
-        y: u16,
-    ) -> Self {
+    pub fn new(x: u16, y: u16) -> Self {
         Coordinate { x, y }
     }
 }

@@ -28,18 +28,10 @@ pub trait Game: Send + Sync {
 
     fn help(&self) -> &'static str;
 
-    fn run(
-        &self,
-        width: u16,
-        height: u16,
-        difficulty: u8,
-    ) -> Result<(), CliError>;
+    fn run(&self, width: u16, height: u16, difficulty: u8) -> Result<(), CliError>;
 }
 impl Display for dyn Game {
-    fn fmt(
-        &self,
-        f: &mut Formatter<'_>,
-    ) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "\t游戏名：{} \t 玩法说明：{}", self.name().blue(), self.help().dark_blue())
     }
 }

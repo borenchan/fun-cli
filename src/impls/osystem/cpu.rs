@@ -21,12 +21,7 @@ pub struct CpuWidget {
 }
 
 impl CpuWidget {
-    pub fn new(
-        left_top: Coordinate,
-        right_bottom: Coordinate,
-        theme: Theme,
-        sys: &mut System,
-    ) -> Self {
+    pub fn new(left_top: Coordinate, right_bottom: Coordinate, theme: Theme, sys: &mut System) -> Self {
         Self {
             width: (right_bottom.x - left_top.x) + 1,
             height: (right_bottom.y - left_top.y) + 1,
@@ -58,10 +53,7 @@ impl Widget for CpuWidget {
         self.height
     }
 
-    fn render(
-        &self,
-        stdout: &mut Stdout,
-    ) -> std::io::Result<()> {
+    fn render(&self, stdout: &mut Stdout) -> std::io::Result<()> {
         let (x, y) = (self.coordinate().x + 2, self.coordinate().y + 2);
         queue!(stdout, SetForegroundColor(self.theme.primary_text_color()))?;
         queue!(stdout, MoveTo(x, y), Print(format!("CPU型号:      {:>5}", self.cpu_brand)))?;

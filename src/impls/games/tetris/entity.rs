@@ -64,11 +64,7 @@ pub struct TetrisPiece {
 }
 
 impl TetrisPiece {
-    pub fn new(
-        x: u16,
-        y: u16,
-        piece_type: usize,
-    ) -> Self {
+    pub fn new(x: u16, y: u16, piece_type: usize) -> Self {
         let display = Self::get_piece_display(piece_type, 0);
         let width = display.lines().map(|line| line.len()).max().unwrap_or(0) as u16;
 
@@ -87,10 +83,7 @@ impl TetrisPiece {
         }
     }
 
-    fn get_piece_display(
-        piece_type: usize,
-        rotation: usize,
-    ) -> String {
+    fn get_piece_display(piece_type: usize, rotation: usize) -> String {
         let piece_type = piece_type % TETRIS_PIECES.len();
         let rotation = rotation % 4;
         let piece_shapes = &TETRIS_PIECES[piece_type][rotation];
@@ -144,11 +137,7 @@ impl GameEntity for TetrisPiece {
         }
     }
 
-    fn move_to(
-        &mut self,
-        x: u16,
-        y: u16,
-    ) {
+    fn move_to(&mut self, x: u16, y: u16) {
         self.entity.last_x = self.entity.x;
         self.entity.last_y = self.entity.y;
         self.entity.x = x;
@@ -170,11 +159,7 @@ pub struct TetrisBlock {
 }
 
 impl TetrisBlock {
-    pub fn new(
-        x: u16,
-        y: u16,
-        color_code: u8,
-    ) -> Self {
+    pub fn new(x: u16, y: u16, color_code: u8) -> Self {
         Self {
             entity: Entity {
                 x,
@@ -204,11 +189,7 @@ impl GameEntity for TetrisBlock {
         }
     }
 
-    fn move_to(
-        &mut self,
-        x: u16,
-        y: u16,
-    ) {
+    fn move_to(&mut self, x: u16, y: u16) {
         self.entity.last_x = self.entity.x;
         self.entity.last_y = self.entity.y;
         self.entity.x = x;

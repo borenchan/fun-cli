@@ -23,11 +23,7 @@ struct DiskInfo {
     available: u64,
 }
 impl DiskWidget {
-    pub fn new(
-        left_top: Coordinate,
-        right_bottom: Coordinate,
-        theme: Theme,
-    ) -> Self {
+    pub fn new(left_top: Coordinate, right_bottom: Coordinate, theme: Theme) -> Self {
         Self {
             width: (right_bottom.x - left_top.x) + 1,
             height: (right_bottom.y - left_top.y) + 1,
@@ -60,10 +56,7 @@ impl Widget for DiskWidget {
         self.height
     }
 
-    fn render(
-        &self,
-        stdout: &mut Stdout,
-    ) -> std::io::Result<()> {
+    fn render(&self, stdout: &mut Stdout) -> std::io::Result<()> {
         queue!(stdout, SetForegroundColor(self.theme.primary_text_color()))?;
         let (x, y) = (self.coordinate().x + 2, self.coordinate().y + 2);
         // for (i, disk) in self.disks.iter().enumerate() {

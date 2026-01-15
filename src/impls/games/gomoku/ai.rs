@@ -3,20 +3,14 @@ use rand::Rng;
 
 /// AI 策略 trait
 pub trait AIStrategy {
-    fn next_move(
-        &self,
-        board: &GomokuBoard,
-    ) -> Option<Position>;
+    fn next_move(&self, board: &GomokuBoard) -> Option<Position>;
 }
 
 /// 简单 AI：随机选择
 pub struct RandomStrategy;
 
 impl AIStrategy for RandomStrategy {
-    fn next_move(
-        &self,
-        board: &GomokuBoard,
-    ) -> Option<Position> {
+    fn next_move(&self, board: &GomokuBoard) -> Option<Position> {
         let empty_positions = board.empty_positions();
         if empty_positions.is_empty() {
             return None;
@@ -33,11 +27,7 @@ pub struct DefensiveStrategy;
 
 impl DefensiveStrategy {
     /// 评估在某个位置落子后的得分
-    fn evaluate_move(
-        &self,
-        board: &GomokuBoard,
-        pos: Position,
-    ) -> isize {
+    fn evaluate_move(&self, board: &GomokuBoard, pos: Position) -> isize {
         let mut temp_board = board.clone_board();
 
         // 首先检查 AI 在此位置落子是否获胜
@@ -69,12 +59,7 @@ impl DefensiveStrategy {
     }
 
     /// 评估某个位置的威胁程度
-    fn evaluate_threats(
-        &self,
-        board: &GomokuBoard,
-        pos: Position,
-        cell: Cell,
-    ) -> isize {
+    fn evaluate_threats(&self, board: &GomokuBoard, pos: Position, cell: Cell) -> isize {
         let mut max_threat = 0isize;
 
         // 检查四个方向
@@ -94,14 +79,7 @@ impl DefensiveStrategy {
     }
 
     /// 计算某个方向的连子数（包括当前位置）
-    fn count_line(
-        &self,
-        board: &GomokuBoard,
-        pos: Position,
-        cell: Cell,
-        drow: isize,
-        dcol: isize,
-    ) -> usize {
+    fn count_line(&self, board: &GomokuBoard, pos: Position, cell: Cell, drow: isize, dcol: isize) -> usize {
         let mut count = 1; // 当前位置
 
         // 正方向
@@ -137,10 +115,7 @@ impl DefensiveStrategy {
 }
 
 impl AIStrategy for DefensiveStrategy {
-    fn next_move(
-        &self,
-        board: &GomokuBoard,
-    ) -> Option<Position> {
+    fn next_move(&self, board: &GomokuBoard) -> Option<Position> {
         let empty_positions = board.empty_positions();
         if empty_positions.is_empty() {
             return None;
@@ -191,10 +166,7 @@ impl MinimaxStrategy {
     }
 
     /// 计算棋盘的简单哈希值（用于置换表）
-    fn hash_board(
-        &self,
-        board: &GomokuBoard,
-    ) -> u64 {
+    fn hash_board(&self, board: &GomokuBoard) -> u64 {
         use std::collections::hash_map::DefaultHasher;
         use std::hash::{Hash, Hasher};
 
@@ -216,14 +188,7 @@ impl MinimaxStrategy {
     }
 
     /// 分析某个方向的棋型，返回评分
-    fn analyze_pattern(
-        &self,
-        board: &GomokuBoard,
-        pos: Position,
-        cell: Cell,
-        drow: isize,
-        dcol: isize,
-    ) -> isize {
+    fn analyze_pattern(&self, board: &GomokuBoard, pos: Position, cell: Cell, drow: isize, dcol: isize) -> isize {
         let count = self.count_line(board, pos, cell, drow, dcol);
 
         if count >= 5 {
@@ -262,14 +227,7 @@ impl MinimaxStrategy {
     }
 
     /// 统计某个方向两端被堵的数量（0=两端都空，1=一端被堵，2=两端被堵）
-    fn count_blocks(
-        &self,
-        board: &GomokuBoard,
-        pos: Position,
-        cell: Cell,
-        drow: isize,
-        dcol: isize,
-    ) -> usize {
+    fn count_blocks(&self, board: &GomokuBoard, pos: Position, cell: Cell, drow: isize, dcol: isize) -> usize {
         let mut blocks = 0;
 
         // 检查正方向
@@ -318,14 +276,7 @@ impl MinimaxStrategy {
     }
 
     /// 计算某个方向的连子数
-    fn count_line(
-        &self,
-        board: &GomokuBoard,
-        pos: Position,
-        cell: Cell,
-        drow: isize,
-        dcol: isize,
-    ) -> usize {
+    fn count_line(&self, board: &GomokuBoard, pos: Position, cell: Cell, drow: isize, dcol: isize) -> usize {
         let mut count = 1;
 
         // 正方向
@@ -360,12 +311,7 @@ impl MinimaxStrategy {
     }
 
     /// 评估在某个位置落子后的得分（使用棋型分析）
-    fn evaluate_position(
-        &self,
-        board: &GomokuBoard,
-        pos: Position,
-        cell: Cell,
-    ) -> isize {
+    fn evaluate_position(&self, board: &GomokuBoard, pos: Position, cell: Cell) -> isize {
         let mut score = 0isize;
         let mut live_three_count = 0;
         let mut live_four_count = 0;
@@ -490,10 +436,7 @@ impl MinimaxStrategy {
     }
 
     /// 评估整个棋盘
-    fn evaluate_board(
-        &self,
-        board: &GomokuBoard,
-    ) -> isize {
+    fn evaluate_board(&self, board: &GomokuBoard) -> isize {
         let mut score = 0isize;
 
         // 遍历所有棋子，评估局势
@@ -516,10 +459,7 @@ impl MinimaxStrategy {
     }
 
     /// 获取候选位置（智能剪枝 + 威胁优先排序）
-    fn get_candidate_positions(
-        &self,
-        board: &GomokuBoard,
-    ) -> Vec<Position> {
+    fn get_candidate_positions(&self, board: &GomokuBoard) -> Vec<Position> {
         let empty_positions = board.empty_positions();
 
         // 如果棋盘几乎空白，只考虑中心区域
@@ -604,10 +544,7 @@ impl MinimaxStrategy {
 }
 
 impl AIStrategy for MinimaxStrategy {
-    fn next_move(
-        &self,
-        board: &GomokuBoard,
-    ) -> Option<Position> {
+    fn next_move(&self, board: &GomokuBoard) -> Option<Position> {
         // 清理置换表，避免内存累积
         self.transposition_table.borrow_mut().clear();
 

@@ -44,18 +44,11 @@ struct NetCloudMusic {
 const MUSIC_API: &'static str = "https://api.bakaomg.cn/v1/music/netease/search?keyword={keyword}";
 
 impl MusicHandler {
-    pub fn new(
-        name: String,
-        play: bool,
-        loop_play: bool,
-    ) -> Self {
+    pub fn new(name: String, play: bool, loop_play: bool) -> Self {
         Self { name, play, loop_play }
     }
 
-    pub fn get_internet_music(
-        &self,
-        client: &Client,
-    ) -> Result<NetCloudMusic, Box<dyn std::error::Error>> {
+    pub fn get_internet_music(&self, client: &Client) -> Result<NetCloudMusic, Box<dyn std::error::Error>> {
         let name = form_urlencoded::byte_serialize((&self.name).as_bytes()).collect::<String>();
         let response = client.get(MUSIC_API.replace("{keyword}", &name)).send()?.error_for_status()?;
         let res: serde_json::Value = response.json()?;
@@ -69,10 +62,7 @@ impl MusicHandler {
         }
         Err("获取音乐信息失败！".into())
     }
-    fn get_music_binary(
-        url: &str,
-        client: &Client,
-    ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+    fn get_music_binary(url: &str, client: &Client) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
         let mut response = client.get(url).send()?.error_for_status()?;
         let mut audio_data = Vec::new();
         response.copy_to(&mut audio_data)?;
@@ -85,11 +75,7 @@ impl MusicHandler {
         Ok(decoder)
     }
     // 修正后的真实频谱计算函数签名
-    fn compute_real_spectrum(
-        pcm: &[f32],
-        fft: &dyn rustfft::Fft<f32>,
-        window_size: usize,
-    ) -> Vec<f32> {
+    fn compute_real_spectrum(pcm: &[f32], fft: &dyn rustfft::Fft<f32>, window_size: usize) -> Vec<f32> {
         let mut buffer = pcm
             .iter()
             .enumerate()
@@ -110,10 +96,7 @@ impl MusicHandler {
     }
 
     // 渲染函数保持不变
-    fn render_ascii(
-        spectrum: &[f32],
-        width: usize,
-    ) -> String {
+    fn render_ascii(spectrum: &[f32], width: usize) -> String {
         let chunk_size = spectrum.len() / width;
         let height_chars = [' ', '▁', '▂', '▃', '▄', '▅', '▆', '▇', '█', ' ', ' ', ' '];
 

@@ -15,20 +15,13 @@ pub trait GameEntity {
 
     fn last_position(&self) -> Coordinate;
 
-    fn move_to(
-        &mut self,
-        x: u16,
-        y: u16,
-    );
+    fn move_to(&mut self, x: u16, y: u16);
 
     fn display(&self) -> &str;
 
     fn width(&self) -> u16;
 
-    fn coll_detect(
-        &self,
-        other: &dyn GameEntity,
-    ) -> bool {
+    fn coll_detect(&self, other: &dyn GameEntity) -> bool {
         self.position().x < other.position().x + other.width()
             && self.position().x + self.width() > other.position().x
             && self.position().y == other.position().y

@@ -15,17 +15,11 @@ pub struct WeatherHandler {
 }
 
 impl WeatherHandler {
-    pub fn new(
-        city: String,
-        mode: u8,
-    ) -> Self {
+    pub fn new(city: String, mode: u8) -> Self {
         Self { city, mode }
     }
 
-    pub fn get_now_weather(
-        &self,
-        city: &str,
-    ) -> Result<WeatherResult, Box<dyn std::error::Error>> {
+    pub fn get_now_weather(&self, city: &str) -> Result<WeatherResult, Box<dyn std::error::Error>> {
         let client = Client::new();
         let weather_result = HeFengWeather::new(&client).get_now_weather(city)?;
         Ok(weather_result)
@@ -102,10 +96,7 @@ impl<'a> HeFengWeather<'a> {
         Self { client }
     }
     /// 获取实时天气信息
-    pub fn get_now_weather(
-        &self,
-        city: &str,
-    ) -> Result<WeatherResult, Box<dyn std::error::Error>> {
+    pub fn get_now_weather(&self, city: &str) -> Result<WeatherResult, Box<dyn std::error::Error>> {
         let encoded_city = form_urlencoded::byte_serialize(city.as_bytes()).collect::<String>();
         let geo_api = Self::HEFENG_GEO_API_URL
             .replace("{city}", &encoded_city)

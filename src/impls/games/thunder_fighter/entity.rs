@@ -27,11 +27,7 @@ pub struct Enemy {
     pub bullets: Vec<Bullet>,
 }
 impl Player {
-    pub fn render(
-        &mut self,
-        stdout: &mut Stdout,
-        max_bound: u16,
-    ) -> Result<(), CliError> {
+    pub fn render(&mut self, stdout: &mut Stdout, max_bound: u16) -> Result<(), CliError> {
         for bullet in self.bullets.iter_mut() {
             bullet.render(stdout, max_bound, Color::DarkYellow, None)?;
         }
@@ -77,10 +73,7 @@ impl Player {
     }
     ///
     /// 基于子弹速度移动
-    pub fn update_bullets_by_speed(
-        &mut self,
-        max_bound: u16,
-    ) {
+    pub fn update_bullets_by_speed(&mut self, max_bound: u16) {
         for bullet in &mut self.bullets {
             let mut y = bullet.position().y;
             if y < bullet.speed {
@@ -107,11 +100,7 @@ impl GameEntity for Player {
         }
     }
 
-    fn move_to(
-        &mut self,
-        x: u16,
-        y: u16,
-    ) {
+    fn move_to(&mut self, x: u16, y: u16) {
         self.entity.last_x = self.entity.x;
         self.entity.last_y = self.entity.y;
         self.entity.x = x;
@@ -127,10 +116,7 @@ impl GameEntity for Player {
 }
 impl Enemy {
     /// Update the enemy position
-    pub fn update(
-        &mut self,
-        max_bound: u16,
-    ) {
+    pub fn update(&mut self, max_bound: u16) {
         let mut y = self.position().y;
         if y == max_bound {
             self.health = 0;
@@ -167,10 +153,7 @@ impl Enemy {
         Ok(())
     }
 
-    pub fn new_random_enemy(
-        width: u16,
-        height: u16,
-    ) -> Enemy {
+    pub fn new_random_enemy(width: u16, height: u16) -> Enemy {
         let mut rng = rand::thread_rng();
         let x = rng.gen_range(0..width / 2);
         let y = rng.gen_range(0..height / 3);
@@ -192,10 +175,7 @@ impl Enemy {
     pub fn is_dead(&self) -> bool {
         self.health <= 0
     }
-    pub fn attack_bullet(
-        &mut self,
-        max_bound: u16,
-    ) {
+    pub fn attack_bullet(&mut self, max_bound: u16) {
         let coordinate = self.position();
         let mut y = self.position().y;
         if y < max_bound {
@@ -220,10 +200,7 @@ impl Enemy {
         )?;*/
     }
     /// 基于子弹速度移动
-    pub fn update_bullets_by_speed(
-        &mut self,
-        max_bound: u16,
-    ) {
+    pub fn update_bullets_by_speed(&mut self, max_bound: u16) {
         for bullet in &mut self.bullets {
             let mut y = bullet.position().y;
             if y + bullet.speed >= max_bound {
@@ -250,11 +227,7 @@ impl GameEntity for Enemy {
         }
     }
 
-    fn move_to(
-        &mut self,
-        x: u16,
-        y: u16,
-    ) {
+    fn move_to(&mut self, x: u16, y: u16) {
         self.entity.last_x = self.entity.x;
         self.entity.last_y = self.entity.y;
         self.entity.x = x;
@@ -293,10 +266,7 @@ impl Bullet {
         Ok(())
     }
     /// 判断子弹是否超出屏幕边界
-    pub fn is_out_of_bound(
-        &self,
-        max_bound: u16,
-    ) -> bool {
+    pub fn is_out_of_bound(&self, max_bound: u16) -> bool {
         self.last_position().y == 0 || self.last_position().y >= max_bound
     }
 }
@@ -315,11 +285,7 @@ impl GameEntity for Bullet {
         }
     }
 
-    fn move_to(
-        &mut self,
-        x: u16,
-        y: u16,
-    ) {
+    fn move_to(&mut self, x: u16, y: u16) {
         self.entity.last_x = self.entity.x;
         self.entity.last_y = self.entity.y;
         self.entity.x = x;

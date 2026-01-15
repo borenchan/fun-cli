@@ -28,10 +28,7 @@ struct ProcessInfo {
     ports: Vec<String>,
 }
 impl Display for ProcessInfo {
-    fn fmt(
-        &self,
-        f: &mut std::fmt::Formatter<'_>,
-    ) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         //<25 左对齐 ，不足25个字符，用空格填充
         // <: 左对齐（默认用于字符串）
         // >: 右对齐（默认用于数字）
@@ -49,12 +46,7 @@ impl Display for ProcessInfo {
 }
 
 impl ProcessWidget {
-    pub fn new(
-        left_top: Coordinate,
-        right_bottom: Coordinate,
-        theme: Theme,
-        sys: &System,
-    ) -> Self {
+    pub fn new(left_top: Coordinate, right_bottom: Coordinate, theme: Theme, sys: &System) -> Self {
         // 先计算基本字段
         let width = (right_bottom.x - left_top.x) + 1;
         let height = (right_bottom.y - left_top.y) + 1;
@@ -121,10 +113,7 @@ impl Widget for ProcessWidget {
         self.height
     }
 
-    fn render(
-        &self,
-        stdout: &mut Stdout,
-    ) -> std::io::Result<()> {
+    fn render(&self, stdout: &mut Stdout) -> std::io::Result<()> {
         queue!(
             stdout,
             MoveTo(self.coordinate.x + 2, self.coordinate.y + 1),
@@ -132,16 +121,13 @@ impl Widget for ProcessWidget {
         )?;
         queue!(
             stdout,
-            Print(format!("{:<25}{:<10}{:>8}{:>10}{:>10}", "进程", "pid", "cpu", "内存", "端口"))
+            Print(format!("{:<23}{:<10}{:>8}{:>10}{:>10}", "进程", "pid", "cpu", "内存", "端口"))
         )?;
         self.process_list.render(stdout)?;
         Ok(())
     }
 
-    fn handle_event(
-        &mut self,
-        event: KeyCode,
-    ) -> bool {
+    fn handle_event(&mut self, event: KeyCode) -> bool {
         match event {
             KeyCode::Up | KeyCode::Down => self.process_list.handle_event(event),
             KeyCode::Char('k') | KeyCode::Delete => {
@@ -158,10 +144,7 @@ impl Widget for ProcessWidget {
         }
     }
     // 设置焦点
-    fn set_focus(
-        &mut self,
-        focused: bool,
-    ) {
+    fn set_focus(&mut self, focused: bool) {
         self.process_list.set_focus(focused)
     }
 }

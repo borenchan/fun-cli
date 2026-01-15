@@ -61,10 +61,7 @@ struct LayoutPanel {
     theme: Theme,
 }
 impl LayoutPanel {
-    fn calculate_layout(
-        width: u16,
-        height: u16,
-    ) -> HashMap<LayoutPosition, (Coordinate, Coordinate)> {
+    fn calculate_layout(width: u16, height: u16) -> HashMap<LayoutPosition, (Coordinate, Coordinate)> {
         let half_w = width / 2;
         let percent_h = height / 3;
         let mut layout = HashMap::with_capacity(5);
@@ -96,12 +93,7 @@ impl LayoutPanel {
         ); // 右下
         layout
     }
-    fn new(
-        width: u16,
-        height: u16,
-        sys: &mut System,
-        theme: Theme,
-    ) -> Self {
+    fn new(width: u16, height: u16, sys: &mut System, theme: Theme) -> Self {
         // queue!(&mut stdout(),MoveTo(0,height+2),Print(format!("尺寸：{} x {}" ,width,height)) ).unwrap();
         let layout = Self::calculate_layout(width, height);
         let top = layout.get(&LayoutPosition::Top).unwrap();
@@ -155,10 +147,7 @@ impl LayoutPanel {
     }
 
     // 添加更新系统信息的方法
-    fn update_system_info(
-        &mut self,
-        sys: &mut System,
-    ) {
+    fn update_system_info(&mut self, sys: &mut System) {
         sys.refresh_all();
         let top = self.layout.get(&LayoutPosition::Top).unwrap();
         let left_top = self.layout.get(&LayoutPosition::LeftTop).unwrap();
@@ -185,10 +174,7 @@ impl LayoutPanel {
         }
     }
 
-    fn render(
-        &mut self,
-        stdout: &mut io::Stdout,
-    ) -> Result<(), CliError> {
+    fn render(&mut self, stdout: &mut io::Stdout) -> Result<(), CliError> {
         for (index, panel) in self.widgets.iter_mut().enumerate() {
             let mut panel_mut = panel.borrow_mut();
             if index == self.focus_idx {
@@ -199,10 +185,7 @@ impl LayoutPanel {
         }
         Ok(())
     }
-    fn set_overview_panel_list(
-        list: &mut List<String>,
-        sys: &mut System,
-    ) {
+    fn set_overview_panel_list(list: &mut List<String>, sys: &mut System) {
         let mut vec = vec![];
         vec.push(format!(
             "System name:             {}",
@@ -235,10 +218,7 @@ impl LayoutPanel {
         list.set_items(vec);
     }
     /// 切换面板选中
-    fn next_focus(
-        &mut self,
-        key_code: KeyCode,
-    ) {
+    fn next_focus(&mut self, key_code: KeyCode) {
         if let Some(pan) = self.widgets.get_mut(self.focus_idx) {
             pan.borrow_mut().set_focus(false);
         }
@@ -257,10 +237,7 @@ impl LayoutPanel {
     }
     /// 处理按键
     /// true：表示需要重建UI组件， false表示仅重新渲染数据即可
-    fn handle_event(
-        &mut self,
-        key_code: KeyCode,
-    ) -> bool {
+    fn handle_event(&mut self, key_code: KeyCode) -> bool {
         match key_code {
             KeyCode::Up | KeyCode::Down | KeyCode::Tab => {
                 if !self.focus_mode {

@@ -9,7 +9,7 @@ tab_spaces = 4                     # 每个缩进使用4个空格
 hard_tabs = false                  # 不使用制表符，使用空格缩进
 
 # 函数参数布局
-fn_params_layout = "Vertical"      # 函数参数在一行放不下时垂直排列（提高可读性）
+fn_params_layout = "Tall"          # 函数参数根据宽度自动决定是否换行（默认行为）
 
 # 导入语句排序
 reorder_imports = true             # 按字母顺序重新排序导入语句
