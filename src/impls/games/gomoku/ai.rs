@@ -3,14 +3,20 @@ use rand::Rng;
 
 /// AI 策略 trait
 pub trait AIStrategy {
-    fn next_move(&self, board: &GomokuBoard) -> Option<Position>;
+    fn next_move(
+        &self,
+        board: &GomokuBoard,
+    ) -> Option<Position>;
 }
 
 /// 简单 AI：随机选择
 pub struct RandomStrategy;
 
 impl AIStrategy for RandomStrategy {
-    fn next_move(&self, board: &GomokuBoard) -> Option<Position> {
+    fn next_move(
+        &self,
+        board: &GomokuBoard,
+    ) -> Option<Position> {
         let empty_positions = board.empty_positions();
         if empty_positions.is_empty() {
             return None;
@@ -27,7 +33,11 @@ pub struct DefensiveStrategy;
 
 impl DefensiveStrategy {
     /// 评估在某个位置落子后的得分
-    fn evaluate_move(&self, board: &GomokuBoard, pos: Position) -> isize {
+    fn evaluate_move(
+        &self,
+        board: &GomokuBoard,
+        pos: Position,
+    ) -> isize {
         let mut temp_board = board.clone_board();
 
         // 首先检查 AI 在此位置落子是否获胜
@@ -59,7 +69,12 @@ impl DefensiveStrategy {
     }
 
     /// 评估某个位置的威胁程度
-    fn evaluate_threats(&self, board: &GomokuBoard, pos: Position, cell: Cell) -> isize {
+    fn evaluate_threats(
+        &self,
+        board: &GomokuBoard,
+        pos: Position,
+        cell: Cell,
+    ) -> isize {
         let mut max_threat = 0isize;
 
         // 检查四个方向
@@ -96,10 +111,7 @@ impl DefensiveStrategy {
             && r < board.size() as isize
             && c >= 0
             && c < board.size() as isize
-            && board
-                .get(Position::new(r as usize, c as usize))
-                .unwrap()
-                == cell
+            && board.get(Position::new(r as usize, c as usize)).unwrap() == cell
         {
             count += 1;
             r += drow;
@@ -113,10 +125,7 @@ impl DefensiveStrategy {
             && r < board.size() as isize
             && c >= 0
             && c < board.size() as isize
-            && board
-                .get(Position::new(r as usize, c as usize))
-                .unwrap()
-                == cell
+            && board.get(Position::new(r as usize, c as usize)).unwrap() == cell
         {
             count += 1;
             r -= drow;
@@ -128,7 +137,10 @@ impl DefensiveStrategy {
 }
 
 impl AIStrategy for DefensiveStrategy {
-    fn next_move(&self, board: &GomokuBoard) -> Option<Position> {
+    fn next_move(
+        &self,
+        board: &GomokuBoard,
+    ) -> Option<Position> {
         let empty_positions = board.empty_positions();
         if empty_positions.is_empty() {
             return None;
@@ -160,14 +172,14 @@ pub struct MinimaxStrategy {
 /// 棋型评分
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 enum Pattern {
-    Five = 100000,      // 五连
-    LiveFour = 10000,   // 活四
-    DeadFour = 1000,    // 冲四
-    LiveThree = 800,    // 活三
-    DeadThree = 100,    // 眠三
-    LiveTwo = 80,       // 活二
-    DeadTwo = 10,       // 眠二
-    One = 1,            // 单子
+    Five = 100000,    // 五连
+    LiveFour = 10000, // 活四
+    DeadFour = 1000,  // 冲四
+    LiveThree = 800,  // 活三
+    DeadThree = 100,  // 眠三
+    LiveTwo = 80,     // 活二
+    DeadTwo = 10,     // 眠二
+    One = 1,          // 单子
 }
 
 impl MinimaxStrategy {
@@ -179,7 +191,10 @@ impl MinimaxStrategy {
     }
 
     /// 计算棋盘的简单哈希值（用于置换表）
-    fn hash_board(&self, board: &GomokuBoard) -> u64 {
+    fn hash_board(
+        &self,
+        board: &GomokuBoard,
+    ) -> u64 {
         use std::collections::hash_map::DefaultHasher;
         use std::hash::{Hash, Hasher};
 
@@ -219,18 +234,18 @@ impl MinimaxStrategy {
             // 检查两端是否被堵
             let blocked = self.count_blocks(board, pos, cell, drow, dcol);
             return if blocked == 0 {
-                Pattern::LiveFour as isize  // 活四（两端都是空）
+                Pattern::LiveFour as isize // 活四（两端都是空）
             } else {
-                Pattern::DeadFour as isize  // 冲四（至少一端被堵）
+                Pattern::DeadFour as isize // 冲四（至少一端被堵）
             };
         }
 
         if count == 3 {
             let blocked = self.count_blocks(board, pos, cell, drow, dcol);
             return if blocked == 0 {
-                Pattern::LiveThree as isize  // 活三
+                Pattern::LiveThree as isize // 活三
             } else {
-                Pattern::DeadThree as isize  // 眠三
+                Pattern::DeadThree as isize // 眠三
             };
         }
 
@@ -320,10 +335,7 @@ impl MinimaxStrategy {
             && r < board.size() as isize
             && c >= 0
             && c < board.size() as isize
-            && board
-                .get(Position::new(r as usize, c as usize))
-                .unwrap()
-                == cell
+            && board.get(Position::new(r as usize, c as usize)).unwrap() == cell
         {
             count += 1;
             r += drow;
@@ -337,10 +349,7 @@ impl MinimaxStrategy {
             && r < board.size() as isize
             && c >= 0
             && c < board.size() as isize
-            && board
-                .get(Position::new(r as usize, c as usize))
-                .unwrap()
-                == cell
+            && board.get(Position::new(r as usize, c as usize)).unwrap() == cell
         {
             count += 1;
             r -= drow;
@@ -351,7 +360,12 @@ impl MinimaxStrategy {
     }
 
     /// 评估在某个位置落子后的得分（使用棋型分析）
-    fn evaluate_position(&self, board: &GomokuBoard, pos: Position, cell: Cell) -> isize {
+    fn evaluate_position(
+        &self,
+        board: &GomokuBoard,
+        pos: Position,
+        cell: Cell,
+    ) -> isize {
         let mut score = 0isize;
         let mut live_three_count = 0;
         let mut live_four_count = 0;
@@ -476,7 +490,10 @@ impl MinimaxStrategy {
     }
 
     /// 评估整个棋盘
-    fn evaluate_board(&self, board: &GomokuBoard) -> isize {
+    fn evaluate_board(
+        &self,
+        board: &GomokuBoard,
+    ) -> isize {
         let mut score = 0isize;
 
         // 遍历所有棋子，评估局势
@@ -499,7 +516,10 @@ impl MinimaxStrategy {
     }
 
     /// 获取候选位置（智能剪枝 + 威胁优先排序）
-    fn get_candidate_positions(&self, board: &GomokuBoard) -> Vec<Position> {
+    fn get_candidate_positions(
+        &self,
+        board: &GomokuBoard,
+    ) -> Vec<Position> {
         let empty_positions = board.empty_positions();
 
         // 如果棋盘几乎空白，只考虑中心区域
@@ -530,11 +550,7 @@ impl MinimaxStrategy {
                             }
                             let nr = row as isize + dr;
                             let nc = col as isize + dc;
-                            if nr >= 0
-                                && nr < board.size() as isize
-                                && nc >= 0
-                                && nc < board.size() as isize
-                            {
+                            if nr >= 0 && nr < board.size() as isize && nc >= 0 && nc < board.size() as isize {
                                 let neighbor = Position::new(nr as usize, nc as usize);
                                 if board.get(neighbor).unwrap() == Cell::Empty {
                                     candidates.insert(neighbor);
@@ -588,7 +604,10 @@ impl MinimaxStrategy {
 }
 
 impl AIStrategy for MinimaxStrategy {
-    fn next_move(&self, board: &GomokuBoard) -> Option<Position> {
+    fn next_move(
+        &self,
+        board: &GomokuBoard,
+    ) -> Option<Position> {
         // 清理置换表，避免内存累积
         self.transposition_table.borrow_mut().clear();
 
@@ -614,7 +633,11 @@ impl AIStrategy for MinimaxStrategy {
         for &pos in &all_empty {
             board_clone.force_place(pos, Cell::Black);
             if board_clone.check_win(pos) {
-                eprintln!("🚨 AI发现威胁：玩家可在 ({},{}) 获胜，必须阻断！", pos.row + 1, (b'A' + pos.col as u8) as char);
+                eprintln!(
+                    "🚨 AI发现威胁：玩家可在 ({},{}) 获胜，必须阻断！",
+                    pos.row + 1,
+                    (b'A' + pos.col as u8) as char
+                );
                 board_clone.force_place(pos, Cell::Empty);
                 return Some(pos); // 必须阻断
             }
@@ -633,14 +656,7 @@ impl AIStrategy for MinimaxStrategy {
         // 使用 minimax 搜索最佳位置
         for &pos in &candidates {
             board_clone.force_place(pos, Cell::White);
-            let score = self.minimax(
-                &mut board_clone,
-                self.depth - 1,
-                isize::MIN,
-                isize::MAX,
-                false,
-                Some(pos),
-            );
+            let score = self.minimax(&mut board_clone, self.depth - 1, isize::MIN, isize::MAX, false, Some(pos));
             board_clone.force_place(pos, Cell::Empty);
 
             if score > best_score {
@@ -658,7 +674,7 @@ pub fn select_strategy(difficulty: u8) -> Box<dyn AIStrategy> {
     match difficulty {
         1 => Box::new(RandomStrategy),
         2 => Box::new(DefensiveStrategy),
-        3 => Box::new(MinimaxStrategy::new(4)),  // 困难：深度4
-        _ => Box::new(MinimaxStrategy::new(6)),  // 地狱：深度6，搜索更深
+        3 => Box::new(MinimaxStrategy::new(4)), // 困难：深度4
+        _ => Box::new(MinimaxStrategy::new(6)), // 地狱：深度6，搜索更深
     }
 }

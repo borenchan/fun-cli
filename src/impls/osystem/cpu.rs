@@ -58,14 +58,13 @@ impl Widget for CpuWidget {
         self.height
     }
 
-    fn render(&self, stdout: &mut Stdout) -> std::io::Result<()> {
+    fn render(
+        &self,
+        stdout: &mut Stdout,
+    ) -> std::io::Result<()> {
         let (x, y) = (self.coordinate().x + 2, self.coordinate().y + 2);
         queue!(stdout, SetForegroundColor(self.theme.primary_text_color()))?;
-        queue!(
-            stdout,
-            MoveTo(x, y),
-            Print(format!("CPU型号:      {:>5}", self.cpu_brand))
-        )?;
+        queue!(stdout, MoveTo(x, y), Print(format!("CPU型号:      {:>5}", self.cpu_brand)))?;
         queue!(
             stdout,
             MoveTo(x, y + 1),

@@ -52,40 +52,31 @@ impl Widget for MemoryWidget {
         self.height
     }
 
-    fn render(&self, stdout: &mut Stdout) -> std::io::Result<()> {
+    fn render(
+        &self,
+        stdout: &mut Stdout,
+    ) -> std::io::Result<()> {
         queue!(stdout, SetForegroundColor(self.theme.primary_text_color()))?;
         let (x, y) = (self.coordinate().x + 2, self.coordinate().y + 2);
         queue!(
             stdout,
             MoveTo(x, y),
-            Print(format!(
-                "内存总大小:  {:>10}MB",
-                self.total_memory / consts::SIZE_MB
-            ))
+            Print(format!("内存总大小:  {:>10}MB", self.total_memory / consts::SIZE_MB))
         )?;
         queue!(
             stdout,
             MoveTo(x, y + 1),
-            Print(format!(
-                "已使用内存:  {:>10}MB",
-                self.used_memory / consts::SIZE_MB
-            ))
+            Print(format!("已使用内存:  {:>10}MB", self.used_memory / consts::SIZE_MB))
         )?;
         queue!(
             stdout,
             MoveTo(x, y + 2),
-            Print(format!(
-                "空闲内存:    {:>10}MB",
-                self.free_memory / consts::SIZE_MB
-            ))
+            Print(format!("空闲内存:    {:>10}MB", self.free_memory / consts::SIZE_MB))
         )?;
         queue!(
             stdout,
             MoveTo(x, y + 3),
-            Print(format!(
-                "可用内存:    {:>10}MB",
-                self.available_memory / consts::SIZE_MB
-            ))
+            Print(format!("可用内存:    {:>10}MB", self.available_memory / consts::SIZE_MB))
         )?;
         queue!(
             stdout,

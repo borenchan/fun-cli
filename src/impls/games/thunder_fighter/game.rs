@@ -37,7 +37,11 @@ pub const ENEMY_BULLET: &str = "✦";
 pub const ENEMY_DISPLAY: [&str; 6] = ["⛴", "‍⛟", "✈", "♞", "☢", "♛"];
 
 impl ThunderFighterGameState {
-    pub fn new(width: u16, height: u16, difficulty: u8) -> Self {
+    pub fn new(
+        width: u16,
+        height: u16,
+        difficulty: u8,
+    ) -> Self {
         Self {
             width,
             height,
@@ -64,7 +68,10 @@ impl ThunderFighterGameState {
     ///
     /// 处理玩家输入
     /// 返回true表示退出游戏
-    fn handle_input(&mut self, code: KeyCode) -> Result<bool, CliError> {
+    fn handle_input(
+        &mut self,
+        code: KeyCode,
+    ) -> Result<bool, CliError> {
         match code {
             KeyCode::Up => {
                 let mut y = self.player.position().y;
@@ -217,21 +224,19 @@ impl Game for ThunderFighterGame {
         "按上下左右操作战机，空格键发射"
     }
 
-    fn run(&self, width: u16, height: u16, difficulty: u8) -> Result<(), CliError> {
+    fn run(
+        &self,
+        width: u16,
+        height: u16,
+        difficulty: u8,
+    ) -> Result<(), CliError> {
         println!("{}运行中", self.name());
-        let game = Arc::new(Mutex::new(ThunderFighterGameState::new(
-            width, height, difficulty,
-        )));
+        let game = Arc::new(Mutex::new(ThunderFighterGameState::new(width, height, difficulty)));
         // 进入全屏 EnterAlternateScreen
         let mut stdout = stdout();
         execute!(stdout, cursor::Hide)?;
         terminal::enable_raw_mode()?;
-        execute!(
-            stdout,
-            EnterAlternateScreen,
-            Clear(ClearType::All),
-            cursor::MoveTo(0, 0)
-        )?;
+        execute!(stdout, EnterAlternateScreen, Clear(ClearType::All), cursor::MoveTo(0, 0))?;
         let g1 = game.clone();
         {
             let mut game_state = g1.lock().unwrap();

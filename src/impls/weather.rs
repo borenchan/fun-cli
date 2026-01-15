@@ -15,11 +15,17 @@ pub struct WeatherHandler {
 }
 
 impl WeatherHandler {
-    pub fn new(city: String, mode: u8) -> Self {
+    pub fn new(
+        city: String,
+        mode: u8,
+    ) -> Self {
         Self { city, mode }
     }
 
-    pub fn get_now_weather(&self, city: &str) -> Result<WeatherResult, Box<dyn std::error::Error>> {
+    pub fn get_now_weather(
+        &self,
+        city: &str,
+    ) -> Result<WeatherResult, Box<dyn std::error::Error>> {
         let client = Client::new();
         let weather_result = HeFengWeather::new(&client).get_now_weather(city)?;
         Ok(weather_result)
@@ -87,14 +93,19 @@ struct HeFengWeather<'a> {
     client: &'a Client,
 }
 impl<'a> HeFengWeather<'a> {
-    const HEFENG_GEO_API_URL: &'static str = "https://mu4y3j6egv.re.qweatherapi.com/geo/v2/city/lookup?location={city}&key={apiKey}&gzip=n";
-    const HEFENG_API_URL: &'static str = "https://mu4y3j6egv.re.qweatherapi.com/v7/weather/now?location={location}&key={apiKey}&gzip=n";
+    const HEFENG_GEO_API_URL: &'static str =
+        "https://mu4y3j6egv.re.qweatherapi.com/geo/v2/city/lookup?location={city}&key={apiKey}&gzip=n";
+    const HEFENG_API_URL: &'static str =
+        "https://mu4y3j6egv.re.qweatherapi.com/v7/weather/now?location={location}&key={apiKey}&gzip=n";
     const HEFENG_API_KEY: &'static str = "1d7b188237fc43c5b83c12f1ed996da8";
     pub fn new(client: &'a Client) -> Self {
         Self { client }
     }
     /// 获取实时天气信息
-    pub fn get_now_weather(&self, city: &str) -> Result<WeatherResult, Box<dyn std::error::Error>> {
+    pub fn get_now_weather(
+        &self,
+        city: &str,
+    ) -> Result<WeatherResult, Box<dyn std::error::Error>> {
         let encoded_city = form_urlencoded::byte_serialize(city.as_bytes()).collect::<String>();
         let geo_api = Self::HEFENG_GEO_API_URL
             .replace("{city}", &encoded_city)

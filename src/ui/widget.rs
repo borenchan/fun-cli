@@ -11,10 +11,7 @@ use std::io::{self, Stdout, Write};
 pub trait Widget {
     /// 获取组件边界坐标
     fn bounds(&self) -> (Coordinate, Coordinate) {
-        (
-            self.coordinate(),
-            Coordinate::new(self.width(), self.height()),
-        )
+        (self.coordinate(), Coordinate::new(self.width(), self.height()))
     }
     // 组件左上角坐标
     fn coordinate(&self) -> Coordinate;
@@ -24,15 +21,24 @@ pub trait Widget {
     fn height(&self) -> u16;
 
     /// 渲染组件到终端
-    fn render(&self, stdout: &mut Stdout) -> io::Result<()>;
+    fn render(
+        &self,
+        stdout: &mut Stdout,
+    ) -> io::Result<()>;
 
     /// 处理输入事件（返回true表示事件被消费）
-    fn handle_event(&mut self, event: KeyCode) -> bool {
+    fn handle_event(
+        &mut self,
+        event: KeyCode,
+    ) -> bool {
         false
     }
 
     /// 设置组件是否有焦点
-    fn set_focus(&mut self, focused: bool) {
+    fn set_focus(
+        &mut self,
+        focused: bool,
+    ) {
         // 默认空实现，需要焦点的组件可重写
     }
     /// 在组件窗口范围内渲染，超出范围的内容被忽略
@@ -56,7 +62,11 @@ pub struct Panel<T: Widget> {
 }
 
 impl<T: Widget> Panel<T> {
-    pub fn new(title: &str, child: T, theme: Theme) -> Self {
+    pub fn new(
+        title: &str,
+        child: T,
+        theme: Theme,
+    ) -> Self {
         Self {
             title: title.to_string(),
             child,
@@ -66,7 +76,10 @@ impl<T: Widget> Panel<T> {
     }
 
     /// 渲染边框和标题
-    fn render_border(&self, stdout: &mut Stdout) -> io::Result<()> {
+    fn render_border(
+        &self,
+        stdout: &mut Stdout,
+    ) -> io::Result<()> {
         let coordinate = self.coordinate();
         // 绘制标题（带焦点时用不同颜色）
         let offset = (self.title.len() / 2) as u16;
@@ -95,28 +108,16 @@ impl<T: Widget> Panel<T> {
             MoveTo(coordinate.x + 1, coordinate.y),
             Print("-".repeat((self.width() - 2) as usize))
         )?;
-        queue!(
-            stdout,
-            MoveTo(coordinate.x + self.width() - 1, coordinate.y),
-            Print("┐")
-        )?;
+        queue!(stdout, MoveTo(coordinate.x + self.width() - 1, coordinate.y), Print("┐"))?;
 
         // queue!(stdout,ResetColor)?;
         // 绘制两边边框
         for i in 1..(self.height() - 1) {
             queue!(stdout, MoveTo(coordinate.x, coordinate.y + i), Print("|"))?;
-            queue!(
-                stdout,
-                MoveTo(coordinate.x + self.width() - 1, coordinate.y + i),
-                Print("|")
-            )?;
+            queue!(stdout, MoveTo(coordinate.x + self.width() - 1, coordinate.y + i), Print("|"))?;
         }
         // 绘制底部边框
-        queue!(
-            stdout,
-            MoveTo(coordinate.x, coordinate.y + self.height() - 1),
-            Print("└")
-        )?;
+        queue!(stdout, MoveTo(coordinate.x, coordinate.y + self.height() - 1), Print("└"))?;
         queue!(
             stdout,
             MoveTo(coordinate.x + 1, coordinate.y + self.height() - 1),
@@ -124,16 +125,16 @@ impl<T: Widget> Panel<T> {
         )?;
         queue!(
             stdout,
-            MoveTo(
-                coordinate.x + self.width() - 1,
-                coordinate.y + self.height() - 1
-            ),
+            MoveTo(coordinate.x + self.width() - 1, coordinate.y + self.height() - 1),
             Print("┘")
         )?;
         Ok(())
     }
     /// 更新子组件
-    pub fn update_widget(&mut self, new_widget: T) {
+    pub fn update_widget(
+        &mut self,
+        new_widget: T,
+    ) {
         self.child = new_widget;
     }
 }
@@ -152,19 +153,28 @@ impl<T: Widget> Widget for Panel<T> {
         self.child.height() + 2
     }
 
-    fn render(&self, stdout: &mut Stdout) -> io::Result<()> {
+    fn render(
+        &self,
+        stdout: &mut Stdout,
+    ) -> io::Result<()> {
         // 先渲染边框
         self.render_border(stdout)?;
         // 再渲染子组件（调整子组件位置到边框内部）
         self.child.render(stdout)
     }
 
-    fn handle_event(&mut self, event: KeyCode) -> bool {
+    fn handle_event(
+        &mut self,
+        event: KeyCode,
+    ) -> bool {
         // 面板本身不处理事件，转发给子组件
         self.child.handle_event(event)
     }
 
-    fn set_focus(&mut self, focused: bool) {
+    fn set_focus(
+        &mut self,
+        focused: bool,
+    ) {
         self.focused = focused;
         // 将焦点状态传递给子组件
         self.child.set_focus(focused);
@@ -185,7 +195,11 @@ pub struct List<T: Display> {
 }
 
 impl<T: Display> List<T> {
-    pub fn new(left_top: Coordinate, right_bottom: Coordinate, theme: Theme) -> Self {
+    pub fn new(
+        left_top: Coordinate,
+        right_bottom: Coordinate,
+        theme: Theme,
+    ) -> Self {
         Self::new_with_padding(left_top, right_bottom, theme, 0)
     }
     pub fn new_with_padding(
@@ -206,12 +220,18 @@ impl<T: Display> List<T> {
             padding,
         }
     }
-    pub fn set_items(&mut self, items: Vec<T>) {
+    pub fn set_items(
+        &mut self,
+        items: Vec<T>,
+    ) {
         self.items = items;
         self.selected_idx = 0;
         self.scroll_offset = 0;
     }
-    pub fn add_item(&mut self, item: T) {
+    pub fn add_item(
+        &mut self,
+        item: T,
+    ) {
         self.items.push(item);
     }
     pub fn get_selected(&self) -> Option<&T> {
@@ -241,10 +261,13 @@ impl<T: Display> Widget for List<T> {
         self.height
     }
 
-    fn render(&self, stdout: &mut Stdout) -> io::Result<()> {
+    fn render(
+        &self,
+        stdout: &mut Stdout,
+    ) -> io::Result<()> {
         let visible_lines = (self.height) as usize;
-        let display_items = &self.items[self.scroll_offset
-            ..std::cmp::min(self.scroll_offset + visible_lines, self.items.len())];
+        let display_items =
+            &self.items[self.scroll_offset..std::cmp::min(self.scroll_offset + visible_lines, self.items.len())];
         queue!(stdout, ResetColor)?;
         // 渲染列表项
         for (i, item) in display_items.iter().enumerate() {
@@ -273,7 +296,10 @@ impl<T: Display> Widget for List<T> {
         Ok(())
     }
 
-    fn handle_event(&mut self, event: KeyCode) -> bool {
+    fn handle_event(
+        &mut self,
+        event: KeyCode,
+    ) -> bool {
         if self.items.is_empty() {
             return false;
         }
@@ -297,7 +323,10 @@ impl<T: Display> Widget for List<T> {
         }
     }
 
-    fn set_focus(&mut self, focused: bool) {
+    fn set_focus(
+        &mut self,
+        focused: bool,
+    ) {
         self.focused = focused;
     }
 }
@@ -321,11 +350,7 @@ mod tests {
         let theme = Theme::Ocean;
         let panel1 = Panel::new(
             "Panel",
-            DiskWidget::new(
-                Coordinate::new(1, 1),
-                Coordinate::new(width - 1, percent_h - 1),
-                theme.clone(),
-            ),
+            DiskWidget::new(Coordinate::new(1, 1), Coordinate::new(width - 1, percent_h - 1), theme.clone()),
             theme.clone(),
         );
         let panel2 = Panel::new(

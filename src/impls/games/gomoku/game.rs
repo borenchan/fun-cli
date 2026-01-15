@@ -24,7 +24,10 @@ struct GomokuGameState {
 }
 
 impl GomokuGameState {
-    pub fn new(size: usize, difficulty: u8) -> Self {
+    pub fn new(
+        size: usize,
+        difficulty: u8,
+    ) -> Self {
         let ai_strategy = select_strategy(difficulty);
         let cursor_pos = Position::new(size / 2, size / 2);
 
@@ -70,11 +73,7 @@ impl GomokuGameState {
         // 绘制棋盘（从第4行开始）
         for row in 0..size {
             // 定位到行首
-            queue!(
-                self.stdout,
-                cursor::MoveTo(0, 4 + row as u16),
-                Print(format!("{:2} ", row + 1))
-            )?;
+            queue!(self.stdout, cursor::MoveTo(0, 4 + row as u16), Print(format!("{:2} ", row + 1)))?;
 
             // 绘制该行的所有位置
             for col in 0..size {
@@ -90,8 +89,8 @@ impl GomokuGameState {
                             ".".dark_grey()
                         }
                     }
-                    Cell::Black => "@".white().bold(),  // 使用 @ 代替 ●
-                    Cell::White => "O".red().bold(),    // 使用 O 代替 ○
+                    Cell::Black => "@".white().bold(), // 使用 @ 代替 ●
+                    Cell::White => "O".red().bold(),   // 使用 O 代替 ○
                 };
 
                 queue!(self.stdout, Print(symbol), Print(" "))?;
@@ -198,17 +197,10 @@ impl GomokuGameState {
     fn show_game_over(&mut self) -> Result<bool, CliError> {
         self.render()?;
 
-        queue!(
-            self.stdout,
-            cursor::MoveTo(0, (self.board.size() + 5) as u16),
-            Print("\n")
-        )?;
+        queue!(self.stdout, cursor::MoveTo(0, (self.board.size() + 5) as u16), Print("\n"))?;
 
         if let Some(winner) = self.winner {
-            queue!(
-                self.stdout,
-                Print(format!("🎉 {} 获胜！\n", winner).green().bold())
-            )?;
+            queue!(self.stdout, Print(format!("🎉 {} 获胜！\n", winner).green().bold()))?;
         } else {
             queue!(self.stdout, Print("平局！\n".yellow().bold()))?;
         }
@@ -279,7 +271,12 @@ impl Game for GomokuGame {
         "人机对战五子棋，支持四种难度等级（1简单 2中等 3困难 4地狱）"
     }
 
-    fn run(&self, width: u16, height: u16, difficulty: u8) -> Result<(), CliError> {
+    fn run(
+        &self,
+        width: u16,
+        height: u16,
+        difficulty: u8,
+    ) -> Result<(), CliError> {
         // 确定棋盘大小，如果使用默认值（80x30），则使用 15x15
         let size = if width == 80 && height == 30 {
             15 // 标准五子棋棋盘大小

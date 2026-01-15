@@ -31,7 +31,11 @@ struct TetrisGameState {
 }
 
 impl TetrisGameState {
-    pub fn new(width: u16, height: u16, difficulty: u8) -> Self {
+    pub fn new(
+        width: u16,
+        height: u16,
+        difficulty: u8,
+    ) -> Self {
         Self {
             width,
             height,
@@ -79,12 +83,18 @@ impl TetrisGameState {
         }
     }
 
-    fn is_valid_position(&self, piece: &TetrisPiece) -> bool {
+    fn is_valid_position(
+        &self,
+        piece: &TetrisPiece,
+    ) -> bool {
         let blocks = piece.get_blocks();
         self.are_blocks_valid(&blocks)
     }
 
-    fn are_blocks_valid(&self, blocks: &[crate::ui::Coordinate]) -> bool {
+    fn are_blocks_valid(
+        &self,
+        blocks: &[crate::ui::Coordinate],
+    ) -> bool {
         let width = self.width;
         let height = self.height;
 
@@ -106,7 +116,11 @@ impl TetrisGameState {
         true
     }
 
-    fn try_move_piece(&mut self, delta_x: i16, delta_y: i16) -> bool {
+    fn try_move_piece(
+        &mut self,
+        delta_x: i16,
+        delta_y: i16,
+    ) -> bool {
         if let Some(ref mut piece) = self.current_piece {
             let current_pos = piece.position();
 
@@ -130,11 +144,8 @@ impl TetrisGameState {
             let blocks = test_piece.get_blocks();
             let width = self.width;
             let height = self.height;
-            let placed_positions: Vec<(u16, u16)> = self
-                .placed_blocks
-                .iter()
-                .map(|b| (b.position().x, b.position().y))
-                .collect();
+            let placed_positions: Vec<(u16, u16)> =
+                self.placed_blocks.iter().map(|b| (b.position().x, b.position().y)).collect();
 
             // Use static function to avoid borrowing self
             let is_valid = Self::validate_move(&blocks, width, height, &placed_positions);
@@ -230,11 +241,8 @@ impl TetrisGameState {
             let blocks = test_piece.get_blocks();
             let width = self.width;
             let height = self.height;
-            let placed_positions: Vec<(u16, u16)> = self
-                .placed_blocks
-                .iter()
-                .map(|b| (b.position().x, b.position().y))
-                .collect();
+            let placed_positions: Vec<(u16, u16)> =
+                self.placed_blocks.iter().map(|b| (b.position().x, b.position().y)).collect();
 
             // Use static function to avoid borrowing self
             let is_valid = Self::validate_move(&blocks, width, height, &placed_positions);
@@ -285,11 +293,8 @@ impl TetrisGameState {
             // Extract all data needed for validation to avoid borrowing conflicts
             let width = self.width;
             let height = self.height;
-            let placed_positions: Vec<(u16, u16)> = self
-                .placed_blocks
-                .iter()
-                .map(|b| (b.position().x, b.position().y))
-                .collect();
+            let placed_positions: Vec<(u16, u16)> =
+                self.placed_blocks.iter().map(|b| (b.position().x, b.position().y)).collect();
 
             // Calculate how far we can drop with overflow protection
             loop {
@@ -329,8 +334,7 @@ impl TetrisGameState {
             let color_code = piece.color_code;
 
             for block_pos in blocks {
-                self.placed_blocks
-                    .push(TetrisBlock::new(block_pos.x, block_pos.y, color_code));
+                self.placed_blocks.push(TetrisBlock::new(block_pos.x, block_pos.y, color_code));
             }
 
             self.clear_lines();
@@ -348,11 +352,7 @@ impl TetrisGameState {
             let expected_blocks = (self.width - 4) / 2;
 
             // 统计这一行实际有多少个方块
-            let actual_blocks = self
-                .placed_blocks
-                .iter()
-                .filter(|block| block.position().y == y)
-                .count() as u16;
+            let actual_blocks = self.placed_blocks.iter().filter(|block| block.position().y == y).count() as u16;
 
             // 如果方块数量等于预期数量，说明这一行满了
             if actual_blocks == expected_blocks {
@@ -362,8 +362,7 @@ impl TetrisGameState {
 
         // Clear lines and update score
         for &line_y in lines_to_clear.iter().rev() {
-            self.placed_blocks
-                .retain(|block| block.position().y != line_y);
+            self.placed_blocks.retain(|block| block.position().y != line_y);
 
             // Move all blocks above down
             for block in &mut self.placed_blocks {
@@ -380,7 +379,10 @@ impl TetrisGameState {
         self.level = 1 + (self.lines_cleared / 10);
     }
 
-    fn handle_input(&mut self, code: KeyCode) -> Result<bool, CliError> {
+    fn handle_input(
+        &mut self,
+        code: KeyCode,
+    ) -> Result<bool, CliError> {
         match code {
             KeyCode::Left => {
                 self.move_piece_left();
@@ -430,10 +432,7 @@ impl TetrisGameState {
             _ => (34u64, 4u64), // 默认难度1
         };
 
-        let drop_interval = std::cmp::max(
-            3,
-            base_speed.saturating_sub(self.level as u64 * level_multiplier),
-        );
+        let drop_interval = std::cmp::max(3, base_speed.saturating_sub(self.level as u64 * level_multiplier));
 
         if self.current_piece.is_none() {
             if !self.spawn_new_piece() {
@@ -474,11 +473,7 @@ impl TetrisGameState {
 
             // 检查边界，确保 x+1 也在范围内（因为每个方块占2个字符宽）
             if pos.y < self.height - 1 && pos.x + 1 < self.width - 1 {
-                queue!(
-                    self.stdout,
-                    cursor::MoveTo(pos.x, pos.y),
-                    Print("[]".with(color))
-                )?;
+                queue!(self.stdout, cursor::MoveTo(pos.x, pos.y), Print("[]".with(color)))?;
             }
         }
 
@@ -490,11 +485,7 @@ impl TetrisGameState {
             for block in blocks {
                 // 检查边界，确保 x+1 也在范围内（因为每个方块占2个字符宽）
                 if block.y < self.height - 1 && block.x + 1 < self.width - 1 {
-                    queue!(
-                        self.stdout,
-                        cursor::MoveTo(block.x, block.y),
-                        Print("[]".with(color))
-                    )?;
+                    queue!(self.stdout, cursor::MoveTo(block.x, block.y), Print("[]".with(color)))?;
                 }
             }
         }
@@ -511,11 +502,7 @@ impl TetrisGameState {
         // Top and bottom borders - 使用 "[]" 样式
         let mut x = 0;
         while x < self.width {
-            queue!(
-                self.stdout,
-                cursor::MoveTo(x, 0),
-                Print("[]".with(Color::DarkGrey))
-            )?;
+            queue!(self.stdout, cursor::MoveTo(x, 0), Print("[]".with(Color::DarkGrey)))?;
             queue!(
                 self.stdout,
                 cursor::MoveTo(x, self.height - 1),
@@ -526,11 +513,7 @@ impl TetrisGameState {
 
         // Side borders
         for y in 0..self.height {
-            queue!(
-                self.stdout,
-                cursor::MoveTo(0, y),
-                Print("[]".with(Color::DarkGrey))
-            )?;
+            queue!(self.stdout, cursor::MoveTo(0, y), Print("[]".with(Color::DarkGrey)))?;
             // 右边界位置需要对齐到偶数位置
             let right_border_x = if self.width % 2 == 0 {
                 self.width - 2
@@ -589,41 +572,24 @@ impl TetrisGameState {
         )?;
 
         // Controls
-        queue!(
-            self.stdout,
-            cursor::MoveTo(self.width + 2, 7),
-            Print("控制:".green())
-        )?;
-        queue!(
-            self.stdout,
-            cursor::MoveTo(self.width + 2, 8),
-            Print("←→: 移动".dark_green())
-        )?;
-        queue!(
-            self.stdout,
-            cursor::MoveTo(self.width + 2, 9),
-            Print("↑: 旋转".dark_green())
-        )?;
-        queue!(
-            self.stdout,
-            cursor::MoveTo(self.width + 2, 10),
-            Print("↓: 软降".dark_green())
-        )?;
+        queue!(self.stdout, cursor::MoveTo(self.width + 2, 7), Print("控制:".green()))?;
+        queue!(self.stdout, cursor::MoveTo(self.width + 2, 8), Print("←→: 移动".dark_green()))?;
+        queue!(self.stdout, cursor::MoveTo(self.width + 2, 9), Print("↑: 旋转".dark_green()))?;
+        queue!(self.stdout, cursor::MoveTo(self.width + 2, 10), Print("↓: 软降".dark_green()))?;
         queue!(
             self.stdout,
             cursor::MoveTo(self.width + 2, 11),
             Print("空格: 硬降".dark_green())
         )?;
-        queue!(
-            self.stdout,
-            cursor::MoveTo(self.width + 2, 12),
-            Print("q: 退出".dark_green())
-        )?;
+        queue!(self.stdout, cursor::MoveTo(self.width + 2, 12), Print("q: 退出".dark_green()))?;
 
         Ok(())
     }
 
-    fn get_color(&self, color_code: u8) -> Color {
+    fn get_color(
+        &self,
+        color_code: u8,
+    ) -> Color {
         match color_code {
             1 => Color::Cyan,
             2 => Color::Yellow,
@@ -646,18 +612,19 @@ impl Game for TetrisGame {
         "使用方向键控制方块，空格键快速下降"
     }
 
-    fn run(&self, width: u16, height: u16, difficulty: u8) -> Result<(), CliError> {
+    fn run(
+        &self,
+        width: u16,
+        height: u16,
+        difficulty: u8,
+    ) -> Result<(), CliError> {
         println!("{}运行中", self.name());
 
         // Ensure minimum dimensions
         let game_width = std::cmp::max(20, width);
         let game_height = std::cmp::max(25, height);
 
-        let game_state = Arc::new(Mutex::new(TetrisGameState::new(
-            game_width,
-            game_height,
-            difficulty,
-        )));
+        let game_state = Arc::new(Mutex::new(TetrisGameState::new(game_width, game_height, difficulty)));
 
         // 立即生成第一个方块
         {
@@ -672,12 +639,7 @@ impl Game for TetrisGame {
         let mut stdout = stdout();
         execute!(stdout, cursor::Hide)?;
         terminal::enable_raw_mode()?;
-        execute!(
-            stdout,
-            EnterAlternateScreen,
-            Clear(ClearType::All),
-            cursor::MoveTo(0, 0)
-        )?;
+        execute!(stdout, EnterAlternateScreen, Clear(ClearType::All), cursor::MoveTo(0, 0))?;
 
         // 初始渲染一次
         {

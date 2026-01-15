@@ -130,8 +130,14 @@ fun osystem
 - 摆脱重复且无聊的工作循环，**享受编程最原始的快乐**
 
 ## 🤝 **如何贡献？**  
-1. 提交一个 PR 并附上：功能说明
-2. 写代码时默念三遍「 borrow checker 是朋友」
+1. 编写代码并测试
+  ```bash
+     cargo fmt  # 格式化代码
+     cargo clippy  # 检查代码质量
+     cargo test  # 运行测试
+  ```
+2. 提交一个 PR 并附上：功能说明
+3. 写代码时默念三遍「 borrow checker 是朋友」
 
 
 **我们不需要完美的代码，只需要有趣的灵魂！**  
@@ -170,4 +176,3 @@ Oxllodxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxdxxxx
 00000000OOkkxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxkkOO00000000000
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 ```
-

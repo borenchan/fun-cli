@@ -14,7 +14,10 @@ pub struct Position {
 }
 
 impl Position {
-    pub fn new(row: usize, col: usize) -> Self {
+    pub fn new(
+        row: usize,
+        col: usize,
+    ) -> Self {
         Self { row, col }
     }
 }
@@ -43,7 +46,10 @@ impl GomokuBoard {
     }
 
     /// 获取指定位置的单元格状态
-    pub fn get(&self, pos: Position) -> Option<Cell> {
+    pub fn get(
+        &self,
+        pos: Position,
+    ) -> Option<Cell> {
         if pos.row < self.size && pos.col < self.size {
             Some(self.grid[pos.row][pos.col])
         } else {
@@ -52,9 +58,12 @@ impl GomokuBoard {
     }
 
     /// 在指定位置放置棋子（仅当位置为空时）
-    pub fn place(&mut self, pos: Position, cell: Cell) -> bool {
-        if pos.row < self.size && pos.col < self.size && self.grid[pos.row][pos.col] == Cell::Empty
-        {
+    pub fn place(
+        &mut self,
+        pos: Position,
+        cell: Cell,
+    ) -> bool {
+        if pos.row < self.size && pos.col < self.size && self.grid[pos.row][pos.col] == Cell::Empty {
             self.grid[pos.row][pos.col] = cell;
             self.move_count += 1;
             true
@@ -64,7 +73,11 @@ impl GomokuBoard {
     }
 
     /// 强制在指定位置放置棋子（用于 AI 模拟，不检查位置是否为空）
-    pub fn force_place(&mut self, pos: Position, cell: Cell) {
+    pub fn force_place(
+        &mut self,
+        pos: Position,
+        cell: Cell,
+    ) {
         if pos.row < self.size && pos.col < self.size {
             // 如果从非空变为空，减少计数
             if self.grid[pos.row][pos.col] != Cell::Empty && cell == Cell::Empty {
@@ -97,7 +110,10 @@ impl GomokuBoard {
     }
 
     /// 检查指定位置是否导致获胜（五子连珠）
-    pub fn check_win(&self, pos: Position) -> bool {
+    pub fn check_win(
+        &self,
+        pos: Position,
+    ) -> bool {
         let cell = match self.get(pos) {
             Some(Cell::Empty) | None => return false,
             Some(c) => c,
@@ -111,7 +127,13 @@ impl GomokuBoard {
     }
 
     /// 检查某个方向是否有五子连珠
-    fn check_direction(&self, pos: Position, cell: Cell, drow: isize, dcol: isize) -> bool {
+    fn check_direction(
+        &self,
+        pos: Position,
+        cell: Cell,
+        drow: isize,
+        dcol: isize,
+    ) -> bool {
         let mut count = 1; // 当前位置本身
 
         // 正方向计数
@@ -123,7 +145,13 @@ impl GomokuBoard {
     }
 
     /// 沿指定方向计数连续相同颜色的棋子
-    fn count_consecutive(&self, pos: Position, cell: Cell, drow: isize, dcol: isize) -> usize {
+    fn count_consecutive(
+        &self,
+        pos: Position,
+        cell: Cell,
+        drow: isize,
+        dcol: isize,
+    ) -> usize {
         let mut count = 0;
         let mut row = pos.row as isize + drow;
         let mut col = pos.col as isize + dcol;
@@ -143,7 +171,11 @@ impl GomokuBoard {
 
     /// 评估某个位置的连子数量（用于 AI）
     /// 返回 (己方最大连子数, 对方最大连子数)
-    pub fn evaluate_position(&self, pos: Position, player: Cell) -> (usize, usize) {
+    pub fn evaluate_position(
+        &self,
+        pos: Position,
+        player: Cell,
+    ) -> (usize, usize) {
         let opponent = match player {
             Cell::Black => Cell::White,
             Cell::White => Cell::Black,
@@ -155,9 +187,8 @@ impl GomokuBoard {
 
         // 检查四个方向
         for &(drow, dcol) in &[(0, 1), (1, 0), (1, 1), (1, -1)] {
-            let player_count = 1
-                + self.count_consecutive(pos, player, drow, dcol)
-                + self.count_consecutive(pos, player, -drow, -dcol);
+            let player_count =
+                1 + self.count_consecutive(pos, player, drow, dcol) + self.count_consecutive(pos, player, -drow, -dcol);
             let opponent_count = 1
                 + self.count_consecutive(pos, opponent, drow, dcol)
                 + self.count_consecutive(pos, opponent, -drow, -dcol);

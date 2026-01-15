@@ -28,16 +28,19 @@ pub trait Game: Send + Sync {
 
     fn help(&self) -> &'static str;
 
-    fn run(&self, width: u16, height: u16, difficulty: u8) -> Result<(), CliError>;
+    fn run(
+        &self,
+        width: u16,
+        height: u16,
+        difficulty: u8,
+    ) -> Result<(), CliError>;
 }
 impl Display for dyn Game {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "\t游戏名：{} \t 玩法说明：{}",
-            self.name().blue(),
-            self.help().dark_blue()
-        )
+    fn fmt(
+        &self,
+        f: &mut Formatter<'_>,
+    ) -> std::fmt::Result {
+        write!(f, "\t游戏名：{} \t 玩法说明：{}", self.name().blue(), self.help().dark_blue())
     }
 }
 static GAME_REGISTRY: OnceLock<Vec<Box<dyn Game>>> = OnceLock::new();
@@ -67,10 +70,7 @@ impl CommandHandler for GameHandler {
         }
         let game = game_list.get(select as usize - 1).unwrap();
         println!("🎮 启动游戏中 {}", game);
-        println!(
-            "🖥 分辨率：{}x{}，难度：{}",
-            self.width, self.height, self.difficulty
-        );
+        println!("🖥 分辨率：{}x{}，难度：{}", self.width, self.height, self.difficulty);
         println!("{}", "按q退出游戏".green());
 
         game.run(self.width, self.height, self.difficulty)?;

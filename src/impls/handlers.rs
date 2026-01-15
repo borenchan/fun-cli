@@ -17,7 +17,10 @@ impl CombineHandler {
         CombineHandler {}
     }
     /// 匹配命令对应的处理器
-    pub fn matches_handler(self, cmd: Commands) -> Result<Box<dyn CommandHandler>, CliError> {
+    pub fn matches_handler(
+        self,
+        cmd: Commands,
+    ) -> Result<Box<dyn CommandHandler>, CliError> {
         match cmd {
             Commands::Weather(handler) => Ok(Box::new(handler)),
             Commands::Music(handler) => Ok(Box::new(handler)),
