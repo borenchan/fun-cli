@@ -129,8 +129,14 @@ fun osystem
 
 
 ## 🤝 **How to Contribute?**
-1. Submit a PR with: a description of the feature
-2. While coding, chant "the borrow checker is my friend" three times
+1. coding and test
+  ```bash
+     cargo fmt  # format code
+     cargo clippy  # check code quality
+     cargo test  # run unit tests
+  ```
+2. Submit a PR with: a description of the feature
+3. While coding, chant "the borrow checker is my friend" three times
 
 **We don't need perfect code, just interesting souls!**
 
@@ -168,4 +174,3 @@ Oxllodxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxdxxxx
 00000000OOkkxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxkkOO00000000000
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 ```
-
